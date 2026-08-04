@@ -2,16 +2,15 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "Real-time Next.js social web application backend",
-  "main": "dist/server.js",
+  "main": "server.js",
   "scripts": {
-    "dev": "tsx server.ts",
-    "build": "tsc --project tsconfig.server.json && next build",
-    "start": "NODE_ENV=production node dist/server.js",
+    "dev": "node server.js",
+    "build": "next build",
+    "start": "NODE_ENV=production node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "nextjs",
-    "typescript",
     "socket.io",
     "realtime"
   ],
