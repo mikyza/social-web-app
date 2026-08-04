@@ -135,6 +135,10 @@ nextApp.prepare().then(async () => {
   }
 
   // Global Middlewares
+  
+  // NEW: Trust proxy configuration for accurate IP and protocol headers behind reverse proxies/tunnels
+  expressApp.set('trust proxy', 1); 
+  
   expressApp.use(cors({ origin: '*', credentials: true }));
   expressApp.use(express.json());
   expressApp.use(express.urlencoded({ extended: true }));
@@ -247,6 +251,17 @@ nextApp.prepare().then(async () => {
   // 7. REST API ENDPOINTS
   // ==========================================
   
+  // NEW: Health Check Endpoint for reliable uptime monitoring
+  expressApp.get('/api/health', (req, res) => {
+    const dbState = mongoose.connection.readyState;
+    const dbStatus = dbState === 1 ? 'connected' : 'disconnected';
+    res.status(200).json({ 
+      status: 'OK', 
+      database: dbStatus,
+      timestamp: new Date().toISOString() 
+    });
+  });
+
   // Mobile + Password Authentication
   expressApp.post('/api/user/signup', async (req, res) => {
     try {
@@ -339,6 +354,23 @@ nextApp.prepare().then(async () => {
     console.log(`📡 Serving API Requests & WebSockets at http://${hostname}:${port}`);
     console.log(`=============================================================\n`);
   });
+
+  // NEW: Graceful Shutdown Handling
+  const gracefulShutdown = () => {
+    console.log('\n🛑 Initiating graceful shutdown...');
+    io.close(() => {
+      console.log('🔌 Socket.io connections closed.');
+      server.close(async () => {
+        console.log('🛑 HTTP server closed.');
+        await mongoose.connection.close();
+        console.log('🍃 MongoDB connection safely closed.');
+        process.exit(0);
+      });
+    });
+  };
+
+  process.on('SIGINT', gracefulShutdown);
+  process.on('SIGTERM', gracefulShutdown);
 
 }).catch((fatalInitErr) => {
   console.error('❌ Root System Initialization Failure:', fatalInitErr);
