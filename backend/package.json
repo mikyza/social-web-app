@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "Real-time Next.js social web application backend",
   "main": "server.js",
-"scripts": {
-  "dev": "node server.js",
-  "build": "echo 'Skipping Next.js standalone build'",
-  "start": "NODE_ENV=production node server.js"
-},
+  "type": "module",
+  "scripts": {
+    "dev": "tsx server.js",
+    "build": "next build",
+    "start": "NODE_ENV=production node server.js"
+  },
   "keywords": [
     "nextjs",
     "socket.io",
