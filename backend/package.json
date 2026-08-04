@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.js",
-    "build": "next build",
+    "build": "echo 'Skipping Next.js standalone build'",
     "start": "NODE_ENV=production node server.js"
   },
   "keywords": [
