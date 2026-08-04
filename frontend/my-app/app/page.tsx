@@ -10,6 +10,7 @@ interface DirectMessage {
   content: string;
   mediaUrl?: string;
   timestamp: string;
+  status?: 'sending' | 'delivered'; // NEW: Added status tracking for acknowledgments
 }
 
 interface GroupPost {
@@ -39,6 +40,10 @@ export default function SocialHub() {
   const [activeGroupId, setActiveGroupId] = useState('group_general');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // NEW: Refs for managing timeouts without triggering re-renders
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const remoteTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // --- Socket Initialization & Event Listeners ---
   useEffect(() => {
@@ -78,9 +83,28 @@ export default function SocialHub() {
       ]);
     });
 
-    // Handle typing indicators
+    // Handle typing indicators (UPDATED: Added auto-clear fallback)
     socketInstance.on('dm:typing_status', (data: { fromUserId: string; isTyping: boolean }) => {
       setIsTyping(data.isTyping);
+      
+      if (data.isTyping) {
+        if (remoteTypingTimeoutRef.current) clearTimeout(remoteTypingTimeoutRef.current);
+        remoteTypingTimeoutRef.current = setTimeout(() => {
+          setIsTyping(false);
+        }, 3000); // Clear typing status after 3 seconds of network silence
+      }
+    });
+
+    // NEW: Handle server acknowledgment for sent messages
+    socketInstance.on('dm:ack', (data: { messageId: string, status: string }) => {
+      setMessages((prev) => 
+        prev.map(msg => 
+          // Match the most recent optimistic message to update its status and actual DB ID
+          msg.id.startsWith('optimistic_') && msg.status === 'sending' 
+            ? { ...msg, id: data.messageId, status: 'delivered' as const } 
+            : msg
+        )
+      );
     });
 
     // Handle incoming Group Posts
@@ -100,6 +124,8 @@ export default function SocialHub() {
 
     return () => {
       socketInstance.disconnect();
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      if (remoteTypingTimeoutRef.current) clearTimeout(remoteTypingTimeoutRef.current);
     };
   }, [activeGroupId]);
 
@@ -125,7 +151,7 @@ export default function SocialHub() {
     socket.emit('dm:send', payload);
     socket.emit('dm:typing', { toUserId: targetUserId, isTyping: false });
 
-    // Optimistic UI Update
+    // Optimistic UI Update (UPDATED: Added 'sending' status)
     setMessages((prev) => [
       ...prev,
       {
@@ -133,6 +159,7 @@ export default function SocialHub() {
         fromUserId: 'me',
         content: dmInput,
         timestamp: new Date().toISOString(),
+        status: 'sending',
       },
     ]);
     setDmInput('');
@@ -151,6 +178,7 @@ export default function SocialHub() {
     setGroupInput('');
   };
 
+  // UPDATED: Debounced typing handler
   const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDmInput(e.target.value);
     if (socket) {
@@ -158,6 +186,14 @@ export default function SocialHub() {
         toUserId: targetUserId,
         isTyping: e.target.value.length > 0,
       });
+
+      // Auto-emit isTyping false after user stops typing for 2 seconds
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      if (e.target.value.length > 0) {
+        typingTimeoutRef.current = setTimeout(() => {
+          socket.emit('dm:typing', { toUserId: targetUserId, isTyping: false });
+        }, 2000);
+      }
     }
   };
 
@@ -238,8 +274,12 @@ export default function SocialHub() {
                       }`}
                     >
                       <p className="text-[15px] leading-relaxed">{msg.content}</p>
-                      <span className={`text-[10px] mt-2 block font-medium ${isMe ? 'text-indigo-200' : 'text-slate-400'}`}>
+                      {/* UPDATED: Added delivered checkmark status */}
+                      <span className={`text-[10px] mt-2 flex items-center font-medium ${isMe ? 'justify-end text-indigo-200' : 'justify-start text-slate-400'}`}>
                         {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {isMe && msg.status === 'delivered' && (
+                          <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                        )}
                       </span>
                     </div>
                   </div>
