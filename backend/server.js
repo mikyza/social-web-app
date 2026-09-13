@@ -54,10 +54,10 @@ const targetSchema = new mongoose.Schema({
   mainMonetaryTarget: { type: Number, required: true, default: 0 },
   currentAmountRaised: { type: Number, default: 0 },
   items: [{
-    name: { type: String, required: true }, // e.g., "Rice (Kg)", "Tents"
+    name: { type: String, required: true },
     targetQuantity: { type: Number, default: 0 },
     currentQuantity: { type: Number, default: 0 },
-    cashPricePerUnit: { type: Number, default: 0 } // Price set by admin for cash equivalents
+    cashPricePerUnit: { type: Number, default: 0 } 
   }]
 }, { timestamps: true });
 
@@ -67,8 +67,8 @@ const contributionSchema = new mongoose.Schema({
   church: { type: mongoose.Schema.Types.ObjectId, ref: 'Church', required: true },
   type: { type: String, enum: ['cash', 'physical'], required: true },
   itemName: { type: String, default: 'Cash Contribution' },
-  amount: { type: Number, required: true }, // Cash value or equivalent cash value
-  quantity: { type: Number, default: 1 }, // Useful for physical items like bags of rice
+  amount: { type: Number, required: true }, 
+  quantity: { type: Number, default: 1 }, 
   paymentMethod: { type: String, enum: ['payhero_stk', 'physical_handover'], required: true },
   payheroReference: { type: String, default: '' },
   status: { type: String, enum: ['pending', 'verified', 'failed'], default: 'pending' },
@@ -80,7 +80,7 @@ const noticeSchema = new mongoose.Schema({
   title: { type: String, required: true },
   content: { type: String, required: true },
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  targetChurch: { type: mongoose.Schema.Types.ObjectId, ref: 'Church', default: null } // Null for all churches
+  targetChurch: { type: mongoose.Schema.Types.ObjectId, ref: 'Church', default: null } 
 }, { timestamps: true });
 
 const contactSchema = new mongoose.Schema({
@@ -96,9 +96,20 @@ const Contribution = mongoose.model('Contribution', contributionSchema);
 const Notice = mongoose.model('Notice', noticeSchema);
 const Contact = mongoose.model('Contact', contactSchema);
 
-// SEED INITIAL ACCOUNTS
+// SEED INITIAL ACCOUNTS & CHURCHES
 async function seedDefaultAccounts() {
   try {
+    // 1. Seed Default Churches
+    const defaultChurches = ['Thiba', 'Ngurubani main', 'Ngurubani central', 'Kasarani', 'Nguka', 'Kiamanyeki', 'Nyaikungu', 'Kiarukungu', 'Kathigiriri'];
+    for (const churchName of defaultChurches) {
+      const churchExists = await Church.findOne({ name: churchName });
+      if (!churchExists) {
+        await Church.create({ name: churchName });
+        console.log(`Seeded church: ${churchName}`);
+      }
+    }
+
+    // 2. Seed Default Admin
     const adminExists = await User.findOne({ email: 'adminmwea@gmail.com' });
     if (!adminExists) {
       const hashedPassword = await bcrypt.hash('Admin@Mwea2026', 10);
@@ -111,6 +122,7 @@ async function seedDefaultAccounts() {
       console.log('Seeded default Admin account: adminmwea@gmail.com');
     }
 
+    // 3. Seed Default Pastor
     const pastorExists = await User.findOne({ email: 'pastormwea@gmail.com' });
     if (!pastorExists) {
       const hashedPassword = await bcrypt.hash('Pastor@Mwea2026', 10);
@@ -123,6 +135,7 @@ async function seedDefaultAccounts() {
       console.log('Seeded default Pastor account: pastormwea@gmail.com');
     }
 
+    // 4. Seed Default Target
     const targetExists = await Target.findOne();
     if (!targetExists) {
       await Target.create({
