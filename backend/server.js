@@ -6,15 +6,16 @@ const jwt = require('jsonwebtoken');
 const axios = require('axios');
 
 const app = express();
+app.set('trust proxy', true); // Fixes HTTPS callback URL resolution behind Render's reverse proxy
 app.use(cors());
 app.use(express.json());
 
-// CONFIGURATION & CONSTANTS
+// CONFIGURATION & CONSTANTS (Updated with your new PayHero credentials)
 const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://jesselex6_db_user:Michael2026@cluster0.d42eajr.mongodb.net/social_app?appName=Cluster0';
 const JWT_SECRET = process.env.JWT_SECRET || 'mwea_west_twende_mission_secret_key_2026';
-const PAYHERO_USERNAME = process.env.PAYHERO_USERNAME || '1qgQv9XeW96uF42JQGrK';
-const PAYHERO_PASSWORD = process.env.PAYHERO_PASSWORD || '';
-const PAYHERO_CHANNEL_ID = process.env.PAYHERO_CHANNEL_ID || 12252;
+const PAYHERO_USERNAME = process.env.PAYHERO_USERNAME || 'Ni6WYnn5JIeC1jABeapV';
+const PAYHERO_PASSWORD = process.env.PAYHERO_PASSWORD || 'pbhsSGg26GS9DIW3qsTfMwyEIZhv0X1tPEtg9X1';
+const PAYHERO_CHANNEL_ID = process.env.PAYHERO_CHANNEL_ID || 11668;
 const PAYBILL_NUMBER = process.env.PAYBILL_NUMBER || '400200';
 const PORT = process.env.PORT || 5000;
 
@@ -127,7 +128,7 @@ const Contribution = mongoose.model('Contribution', contributionSchema);
 const Notice = mongoose.model('Notice', noticeSchema);
 const Contact = mongoose.model('Contact', contactSchema);
 
-// SEED INITIAL ACCOUNTS, CHURCHES & PRODUCTS[cite: 3]
+// SEED INITIAL ACCOUNTS, CHURCHES & PRODUCTS
 async function seedDefaultAccounts() {
   try {
     const defaultChurches = ['Thiba', 'Ngurubani main', 'Ngurubani central', 'Kasarani', 'Nguka', 'Kiamanyeki', 'Nyaikungu', 'Kiarukungu', 'Kathigiriri'];
@@ -203,7 +204,7 @@ async function seedDefaultAccounts() {
   }
 }
 
-// MIDDLEWARES[cite: 3]
+// MIDDLEWARES
 const authenticate = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -241,7 +242,7 @@ const authorize = (roles = []) => {
   };
 };
 
-// AUTH ROUTES[cite: 3]
+// AUTH ROUTES
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { name, email, password, phone, churchId } = req.body;
@@ -281,7 +282,7 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// ADMIN USERS ROUTE[cite: 3]
+// ADMIN USERS ROUTE
 app.get('/api/admin/users', authenticate, authorize(['admin']), async (req, res) => {
   try {
     const users = await User.find().populate('church', 'name').select('-password').sort({ createdAt: -1 });
@@ -291,7 +292,7 @@ app.get('/api/admin/users', authenticate, authorize(['admin']), async (req, res)
   }
 });
 
-// TARGETS ROUTES[cite: 3]
+// TARGETS ROUTES
 app.get('/api/targets', async (req, res) => {
   try {
     const targets = await Target.find();
@@ -310,7 +311,7 @@ app.put('/api/targets/:id', authenticate, authorize(['admin', 'treasurer']), asy
   }
 });
 
-// CONTACT ROUTES[cite: 3]
+// CONTACT ROUTES
 app.post('/api/contact', async (req, res) => {
   try {
     const { mobile, message } = req.body;
@@ -331,7 +332,7 @@ app.get('/api/contact', authenticate, authorize(['admin', 'pastor']), async (req
   }
 });
 
-// PHYSICAL PRODUCTS CRUD (ADMIN & PUBLIC)[cite: 3]
+// PHYSICAL PRODUCTS CRUD (ADMIN & PUBLIC)
 app.get('/api/products', async (req, res) => {
   try {
     const products = await Product.find({ isActive: true }).sort({ createdAt: -1 });
@@ -371,7 +372,7 @@ app.delete('/api/products/:id', authenticate, authorize(['admin']), async (req, 
   }
 });
 
-// PAYBILL CONFIGURATION & VERIFICATION ROUTE[cite: 3]
+// PAYBILL CONFIGURATION & VERIFICATION ROUTE
 app.get('/api/paybill/info', (req, res) => {
   res.json({
     paybillNumber: PAYBILL_NUMBER,
@@ -417,7 +418,7 @@ app.post('/api/contributions/paybill-verify', optionalAuth, async (req, res) => 
   }
 });
 
-// BASIC PAYHERO STK PUSH[cite: 3]
+// BASIC PAYHERO STK PUSH
 app.post('/api/contributions/payhero-stk', optionalAuth, async (req, res) => {
   try {
     const { phone, amount, churchId, guestName } = req.body;
@@ -466,7 +467,7 @@ app.post('/api/contributions/payhero-stk', optionalAuth, async (req, res) => {
   }
 });
 
-// QUICK SUPPORT (SINGLE STK PUSH)[cite: 3]
+// QUICK SUPPORT (SINGLE STK PUSH)
 app.post('/api/contributions/quick-support', optionalAuth, async (req, res) => {
   try {
     const { phone, churchId, productId, quantity, customAmount, guestName } = req.body;
@@ -538,7 +539,7 @@ app.post('/api/contributions/quick-support', optionalAuth, async (req, res) => {
   }
 });
 
-// MULTI-PRODUCT CART CHECKOUT[cite: 3]
+// MULTI-PRODUCT CART CHECKOUT
 app.post('/api/contributions/cart-checkout', optionalAuth, async (req, res) => {
   try {
     const { phone, churchId, cartItems, paymentMethod, mpesaCode, guestName } = req.body;
@@ -629,7 +630,7 @@ app.post('/api/contributions/cart-checkout', optionalAuth, async (req, res) => {
   }
 });
 
-// PAYHERO CALLBACK WEBHOOK[cite: 3]
+// PAYHERO CALLBACK WEBHOOK
 app.post('/api/contributions/payhero-callback', async (req, res) => {
   try {
     const { external_reference, status, amount } = req.body;
@@ -660,7 +661,7 @@ app.post('/api/contributions/payhero-callback', async (req, res) => {
   }
 });
 
-// ADMIN AUDIT & LIVE PAYHERO LOGS[cite: 3]
+// ADMIN AUDIT & LIVE PAYHERO LOGS
 app.get('/api/admin/payment-logs', authenticate, authorize(['admin', 'treasurer']), async (req, res) => {
   try {
     const localLogs = await Contribution.find()
@@ -684,7 +685,7 @@ app.get('/api/admin/payment-logs', authenticate, authorize(['admin', 'treasurer'
   }
 });
 
-// ADMIN PAYMENTS[cite: 3]
+// ADMIN PAYMENTS
 app.get('/api/admin/payments', authenticate, authorize(['admin', 'treasurer']), async (req, res) => {
   try {
     const payments = await Contribution.find()
@@ -697,7 +698,7 @@ app.get('/api/admin/payments', authenticate, authorize(['admin', 'treasurer']), 
   }
 });
 
-// VERIFICATION & CLEARANCE[cite: 3]
+// VERIFICATION & CLEARANCE
 app.put('/api/contributions/verify/:id', authenticate, authorize(['admin', 'treasurer']), async (req, res) => {
   try {
     const contribution = await Contribution.findById(req.params.id);
@@ -729,7 +730,7 @@ app.put('/api/contributions/verify/:id', authenticate, authorize(['admin', 'trea
   }
 });
 
-// ANNOUNCEMENTS / NOTICE BOARD[cite: 3]
+// ANNOUNCEMENTS / NOTICE BOARD
 app.get('/api/notices', async (req, res) => {
   try {
     const { churchId } = req.query;
@@ -777,7 +778,7 @@ app.delete('/api/notices/:id', authenticate, authorize(['admin', 'pastor']), asy
   }
 });
 
-// SUMMARY & TARGET ROUTES[cite: 3]
+// SUMMARY & TARGET ROUTES
 app.get('/api/contributions/summary', async (req, res) => {
   try {
     const totalRaised = await Contribution.aggregate([
@@ -814,7 +815,7 @@ app.get('/api/churches', async (req, res) => {
   }
 });
 
-// SERVER LISTEN[cite: 3]
+// SERVER LISTEN
 app.listen(PORT, () => {
   console.log(`Mwea West Youth Server running on port ${PORT}`);
 });
