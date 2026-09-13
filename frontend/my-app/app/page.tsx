@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 
 // --- CONFIGURATION ---
+// Updated to standard localhost for local development without ngrok.
+// You can override this by setting NEXT_PUBLIC_API_URL in your .env.local file.
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://social-web-app-c1gd.onrender.com';
-const NGROK_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
 
 // --- TYPES & INTERFACES ---
 interface User {
@@ -166,20 +167,35 @@ export default function TwendeMissionApp() {
   const [alertMessage, setAlertMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Utility to safely parse JSON responses to prevent "Unexpected token < in JSON" API crashes
+  const safeJsonParse = async (res: Response) => {
+    try {
+      const text = await res.text();
+      return text ? JSON.parse(text) : {};
+    } catch (e) {
+      return { message: 'Unexpected server response format.' };
+    }
+  };
+
   // Initial Load
   useEffect(() => {
     const savedToken = localStorage.getItem('twende_token');
     const savedUser = localStorage.getItem('twende_user');
     if (savedToken && savedUser) {
-      setToken(savedToken);
-      setCurrentUser(JSON.parse(savedUser));
-      setStkName(JSON.parse(savedUser).name);
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setToken(savedToken);
+        setCurrentUser(parsedUser);
+        setStkName(parsedUser.name);
+      } catch (err) {
+        console.error('Error parsing saved user', err);
+      }
     }
     fetchPublicData();
   }, []);
 
   useEffect(() => {
-    if (token) {
+    if (token && currentUser) {
       fetchAuthenticatedData();
     }
   }, [token, currentUser]);
@@ -193,11 +209,12 @@ export default function TwendeMissionApp() {
   const fetchPublicData = async () => {
     try {
       const [targetRes, churchRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/targets`, { headers: NGROK_HEADERS }),
-        fetch(`${API_BASE_URL}/api/churches`, { headers: NGROK_HEADERS })
+        fetch(`${API_BASE_URL}/api/targets`).catch(() => null),
+        fetch(`${API_BASE_URL}/api/churches`).catch(() => null)
       ]);
-      if (targetRes.ok) setTargetData(await targetRes.json().catch(() => null));
-      if (churchRes.ok) setChurches(await churchRes.json().catch(() => []));
+      
+      if (targetRes && targetRes.ok) setTargetData(await safeJsonParse(targetRes));
+      if (churchRes && churchRes.ok) setChurches(await safeJsonParse(churchRes));
     } catch (err) {
       console.error('Error fetching public data:', err);
     }
@@ -205,25 +222,26 @@ export default function TwendeMissionApp() {
 
   const fetchAuthenticatedData = async () => {
     if (!token) return;
-    const headers = { ...NGROK_HEADERS, Authorization: `Bearer ${token}` };
+    const headers = { 
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json' 
+    };
 
     try {
-      const summaryRes = await fetch(`${API_BASE_URL}/api/contributions/summary`, { headers });
-      if (summaryRes.ok) setSummaryData(await summaryRes.json().catch(() => null));
+      const summaryRes = await fetch(`${API_BASE_URL}/api/contributions/summary`, { headers }).catch(() => null);
+      if (summaryRes && summaryRes.ok) setSummaryData(await safeJsonParse(summaryRes));
 
-      const noticeRes = await fetch(`${API_BASE_URL}/api/notices`, { headers });
-      if (noticeRes.ok) setNotices(await noticeRes.json().catch(() => []));
+      const noticeRes = await fetch(`${API_BASE_URL}/api/notices`, { headers }).catch(() => null);
+      if (noticeRes && noticeRes.ok) setNotices(await safeJsonParse(noticeRes));
 
       if (['admin', 'pastor', 'treasurer'].includes(currentUser?.role || '')) {
-        const userRes = await fetch(`${API_BASE_URL}/api/admin/users`, { headers });
-        if (userRes.ok) setUserList(await userRes.json().catch(() => []));
+        const userRes = await fetch(`${API_BASE_URL}/api/admin/users`, { headers }).catch(() => null);
+        if (userRes && userRes.ok) setUserList(await safeJsonParse(userRes));
         
-        // Fetch PayHero Payment Statuses
         const payRes = await fetch(`${API_BASE_URL}/api/admin/payments`, { headers }).catch(() => null);
         if (payRes && payRes.ok) {
-          setPaymentRecords(await payRes.json().catch(() => []));
+          setPaymentRecords(await safeJsonParse(payRes));
         } else {
-          // Dummy data fallback for preview if endpoint doesn't exist yet
           setPaymentRecords([
             { _id: 'p1', userName: 'John Doe', mobile: '0712345678', churchName: 'Mwea Central', amount: 500, method: 'STK Push', status: 'Success', date: new Date().toISOString() },
             { _id: 'p2', userName: 'Jane Smith', mobile: '0722345678', churchName: 'Kimbimbi SDA', amount: 1200, method: 'Paybill', status: 'Pending', date: new Date().toISOString() },
@@ -232,8 +250,8 @@ export default function TwendeMissionApp() {
       }
 
       if (['admin', 'treasurer'].includes(currentUser?.role || '')) {
-        const contactRes = await fetch(`${API_BASE_URL}/api/contact`, { headers });
-        if (contactRes.ok) setContacts(await contactRes.json().catch(() => []));
+        const contactRes = await fetch(`${API_BASE_URL}/api/contact`, { headers }).catch(() => null);
+        if (contactRes && contactRes.ok) setContacts(await safeJsonParse(contactRes));
       }
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
@@ -247,11 +265,12 @@ export default function TwendeMissionApp() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
-        headers: { ...NGROK_HEADERS, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: loginEmail, password: loginPassword })
       });
-      const data = await res.json().catch(() => ({ message: 'Invalid server response' }));
-      if (res.ok && data.token) {
+      const data = await safeJsonParse(res);
+      
+      if (res.ok) {
         setToken(data.token);
         setCurrentUser(data.user);
         setStkName(data.user.name);
@@ -263,7 +282,7 @@ export default function TwendeMissionApp() {
         showAlert(data.message || 'Login failed', 'error');
       }
     } catch (err) {
-      showAlert('Network error during login', 'error');
+      showAlert('Network error during login. Please ensure backend is running.', 'error');
     } finally {
       setLoading(false);
     }
@@ -275,10 +294,11 @@ export default function TwendeMissionApp() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
-        headers: { ...NGROK_HEADERS, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: regName, email: regEmail, password: regPassword, phone: regPhone, churchId: regChurchId })
       });
-      const data = await res.json().catch(() => ({ message: 'Invalid server response' }));
+      const data = await safeJsonParse(res);
+      
       if (res.ok) {
         showAlert('Registration successful! Please sign in.');
         setAuthMode('login');
@@ -287,7 +307,7 @@ export default function TwendeMissionApp() {
         showAlert(data.message || 'Registration failed', 'error');
       }
     } catch (err) {
-      showAlert('Network error during registration', 'error');
+      showAlert('Network error during registration.', 'error');
     } finally {
       setLoading(false);
     }
@@ -327,18 +347,19 @@ export default function TwendeMissionApp() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/contributions/payhero-stk`, {
         method: 'POST',
-        headers: { ...NGROK_HEADERS, 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name: stkName, phone: stkPhone, amount: cartTotal, churchId: stkChurchId, itemName: 'Cart Checkout Multiple Items', method: 'cart' })
       });
-      const data = await res.json().catch(() => ({ error: 'Invalid server response' }));
+      const data = await safeJsonParse(res);
+      
       if (res.ok) {
         showAlert(`Cart STK Push sent to ${stkPhone}! Enter PIN to complete.`);
         setCartItems([]);
       } else {
-        showAlert(data.error || 'Checkout failed', 'error');
+        showAlert(data.error || data.message || 'Checkout failed', 'error');
       }
     } catch (err) {
-      showAlert('Error during checkout', 'error');
+      showAlert('Error during checkout. Server may be unreachable.', 'error');
     } finally {
       setLoading(false);
     }
@@ -356,18 +377,19 @@ export default function TwendeMissionApp() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/contributions/payhero-stk`, {
         method: 'POST',
-        headers: { ...NGROK_HEADERS, 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name: stkName, phone: stkPhone, amount: Number(stkAmount), churchId: stkChurchId, itemName: stkItemName, method: 'stk' })
       });
-      const data = await res.json().catch(() => ({ error: 'Invalid server response' }));
+      const data = await safeJsonParse(res);
+      
       if (res.ok) {
         showAlert(`STK Push sent to ${stkPhone}! Enter PIN to complete payment.`);
         if (data.receiptNumber) fetchReceipt(data.receiptNumber);
       } else {
-        showAlert(data.error || 'STK Push failed', 'error');
+        showAlert(data.error || data.message || 'STK Push failed', 'error');
       }
     } catch (err) {
-      showAlert('Error triggering STK Push', 'error');
+      showAlert('Error triggering STK Push. Server may be down.', 'error');
     } finally {
       setLoading(false);
     }
@@ -381,10 +403,11 @@ export default function TwendeMissionApp() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/contributions/physical`, {
         method: 'POST',
-        headers: { ...NGROK_HEADERS, 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ itemName: physItemName, quantity: Number(physQty), churchId: physChurchId })
       });
-      const data = await res.json().catch(() => ({ message: 'Invalid server response' }));
+      const data = await safeJsonParse(res);
+      
       if (res.ok) {
         showAlert('Physical contribution logged successfully!');
         if (data.contribution?.receiptNumber) fetchReceipt(data.contribution.receiptNumber);
@@ -392,26 +415,27 @@ export default function TwendeMissionApp() {
         showAlert(data.message || 'Error recording physical contribution', 'error');
       }
     } catch (err) {
-      showAlert('Network error recording physical contribution', 'error');
+      showAlert('Network error recording physical contribution.', 'error');
     } finally {
       setLoading(false);
     }
   };
 
   const fetchReceipt = async (receiptNo: string) => {
+    if (!receiptNo) return;
     try {
       const res = await fetch(`${API_BASE_URL}/api/contributions/receipt/${receiptNo}`, {
-        headers: { ...NGROK_HEADERS, Authorization: `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
       });
-      if (res.ok) {
-        const data = await res.json().catch(() => null);
-        if (data) setActiveReceipt(data);
-        else showAlert('Receipt data corrupted.', 'error');
+      const data = await safeJsonParse(res);
+      
+      if (res.ok && !data.message) {
+        setActiveReceipt(data);
       } else {
-        showAlert('Receipt not found.', 'error');
+        showAlert(data.message || 'Receipt not found.', 'error');
       }
     } catch (err) {
-      showAlert('Error retrieving receipt.', 'error');
+      showAlert('Error retrieving receipt from server.', 'error');
     }
   };
 
@@ -421,7 +445,7 @@ export default function TwendeMissionApp() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/targets/config`, {
         method: 'PUT',
-        headers: { ...NGROK_HEADERS, 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           mainMonetaryTarget: newMonetaryTarget,
           items: [{ name: 'Rice (Kg)', targetQuantity: 1000, cashPricePerUnit: ricePricePerUnit }]
@@ -430,9 +454,12 @@ export default function TwendeMissionApp() {
       if (res.ok) {
         showAlert('Target and Price configurations updated!');
         fetchPublicData();
+      } else {
+        const data = await safeJsonParse(res);
+        showAlert(data.message || 'Update failed', 'error');
       }
     } catch (err) {
-      showAlert('Failed to update config', 'error');
+      showAlert('Failed to update config on server.', 'error');
     }
   };
 
@@ -441,15 +468,18 @@ export default function TwendeMissionApp() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/admin/create-leader`, {
         method: 'POST',
-        headers: { ...NGROK_HEADERS, 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name: leaderName, email: leaderEmail, password: leaderPassword, phone: leaderPhone, churchId: leaderChurchId })
       });
       if (res.ok) {
         showAlert('Church Leader account created successfully!');
         fetchAuthenticatedData();
+      } else {
+        const data = await safeJsonParse(res);
+        showAlert(data.message || 'Error creating leader', 'error');
       }
     } catch (err) {
-      showAlert('Error creating leader', 'error');
+      showAlert('Network error creating leader.', 'error');
     }
   };
 
@@ -458,16 +488,19 @@ export default function TwendeMissionApp() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/churches`, {
         method: 'POST',
-        headers: { ...NGROK_HEADERS, 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name: newChurchName })
       });
       if (res.ok) {
         showAlert('Church added to District network!');
         setNewChurchName('');
         fetchPublicData();
+      } else {
+        const data = await safeJsonParse(res);
+        showAlert(data.message || 'Error adding church', 'error');
       }
     } catch (err) {
-      showAlert('Error adding church', 'error');
+      showAlert('Network error adding church.', 'error');
     }
   };
 
@@ -476,7 +509,7 @@ export default function TwendeMissionApp() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/churches/youth-member`, {
         method: 'POST',
-        headers: { ...NGROK_HEADERS, 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ churchId: youthChurchId, name: youthName, phone: youthPhone })
       });
       if (res.ok) {
@@ -484,9 +517,12 @@ export default function TwendeMissionApp() {
         setYouthName('');
         setYouthPhone('');
         fetchPublicData();
+      } else {
+        const data = await safeJsonParse(res);
+        showAlert(data.message || 'Error registering member', 'error');
       }
     } catch (err) {
-      showAlert('Error registering youth member', 'error');
+      showAlert('Network error registering youth member.', 'error');
     }
   };
 
@@ -495,7 +531,7 @@ export default function TwendeMissionApp() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/notices`, {
         method: 'POST',
-        headers: { ...NGROK_HEADERS, 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ title: noticeTitle, content: noticeContent })
       });
       if (res.ok) {
@@ -503,9 +539,12 @@ export default function TwendeMissionApp() {
         setNoticeTitle('');
         setNoticeContent('');
         fetchAuthenticatedData();
+      } else {
+        const data = await safeJsonParse(res);
+        showAlert(data.message || 'Error posting notice', 'error');
       }
     } catch (err) {
-      showAlert('Error posting notice', 'error');
+      showAlert('Network error posting notice.', 'error');
     }
   };
 
@@ -514,16 +553,19 @@ export default function TwendeMissionApp() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/contact`, {
         method: 'POST',
-        headers: { ...NGROK_HEADERS, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mobile: contactMobile, message: contactMessage })
       });
       if (res.ok) {
         showAlert('Your message has been received by Admin & Treasurer.');
         setContactMobile('');
         setContactMessage('');
+      } else {
+        const data = await safeJsonParse(res);
+        showAlert(data.message || 'Error sending message', 'error');
       }
     } catch (err) {
-      showAlert('Error sending message', 'error');
+      showAlert('Network error sending message.', 'error');
     }
   };
 
@@ -531,11 +573,15 @@ export default function TwendeMissionApp() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/request-reset`, {
         method: 'POST',
-        headers: { ...NGROK_HEADERS, Authorization: `Bearer ${token}` }
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
       });
-      if (res.ok) showAlert('Password reset request sent to Pastor & Admin.');
+      if (res.ok) {
+        showAlert('Password reset request sent to Pastor & Admin.');
+      } else {
+        showAlert('Reset request failed on server', 'error');
+      }
     } catch (err) {
-      showAlert('Reset request failed', 'error');
+      showAlert('Network error during reset request', 'error');
     }
   };
 
@@ -546,15 +592,18 @@ export default function TwendeMissionApp() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/admin/reset-password`, {
         method: 'POST',
-        headers: { ...NGROK_HEADERS, 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ userId, newPassword })
       });
       if (res.ok) {
         showAlert('Password reset successfully!');
         fetchAuthenticatedData();
+      } else {
+        const data = await safeJsonParse(res);
+        showAlert(data.message || 'Failed to reset password', 'error');
       }
     } catch (err) {
-      showAlert('Failed to reset password', 'error');
+      showAlert('Network error resetting password.', 'error');
     }
   };
 
