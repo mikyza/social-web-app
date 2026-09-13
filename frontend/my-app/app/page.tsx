@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 
 // --- CONFIGURATION ---
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://social-web-app-c1gd.onrender.com';
 
 // --- TYPES & INTERFACES ---
 interface User {
