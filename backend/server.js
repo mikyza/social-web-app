@@ -281,6 +281,56 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// ADMIN USERS ROUTE (ADDED FOR 404 FIX)
+app.get('/api/admin/users', authenticate, authorize(['admin']), async (req, res) => {
+  try {
+    const users = await User.find().populate('church', 'name').select('-password').sort({ createdAt: -1 });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// TARGETS ROUTES (ADDED FOR 404 FIX)
+app.get('/api/targets', async (req, res) => {
+  try {
+    const targets = await Target.find();
+    res.json(targets);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/targets/:id', authenticate, authorize(['admin', 'treasurer']), async (req, res) => {
+  try {
+    const target = await Target.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(target);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// CONTACT ROUTES (ADDED FOR 404 FIX)
+app.post('/api/contact', async (req, res) => {
+  try {
+    const { mobile, message } = req.body;
+    if (!mobile || !message) return res.status(400).json({ error: 'Mobile and message are required' });
+    const contact = await Contact.create({ mobile: formatPhone(mobile), message });
+    res.status(201).json({ message: 'Message sent successfully', contact });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/contact', authenticate, authorize(['admin', 'pastor']), async (req, res) => {
+  try {
+    const contacts = await Contact.find().sort({ createdAt: -1 });
+    res.json(contacts);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // PHYSICAL PRODUCTS CRUD (ADMIN & PUBLIC)
 app.get('/api/products', async (req, res) => {
   try {
@@ -364,6 +414,54 @@ app.post('/api/contributions/paybill-verify', optionalAuth, async (req, res) => 
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// BASIC PAYHERO STK PUSH (ADDED FOR 404 FIX)
+app.post('/api/contributions/payhero-stk', optionalAuth, async (req, res) => {
+  try {
+    const { phone, amount, churchId, guestName } = req.body;
+    const formattedPhone = formatPhone(phone);
+
+    if (!formattedPhone || !amount || !churchId) {
+      return res.status(400).json({ error: 'Phone number, amount, and church selection are required' });
+    }
+
+    const receiptNumber = 'REC-STK-' + Date.now();
+    const contribution = await Contribution.create({
+      receiptNumber,
+      contributor: req.user ? req.user.id : null,
+      guestName: guestName || 'STK Supporter',
+      guestPhone: formattedPhone,
+      church: churchId,
+      type: 'cash',
+      amount: Number(amount),
+      paymentMethod: 'payhero_stk',
+      status: 'pending'
+    });
+
+    const payheroPayload = {
+      amount: Number(amount),
+      phone_number: formattedPhone,
+      channel_id: Number(PAYHERO_CHANNEL_ID),
+      provider: 'm-pesa',
+      external_reference: receiptNumber,
+      callback_url: `${req.protocol}://${req.get('host')}/api/contributions/payhero-callback`
+    };
+
+    const response = await axios.post('https://backend.payhero.co.ke/api/v2/payments', payheroPayload, {
+      auth: { username: PAYHERO_USERNAME, password: PAYHERO_PASSWORD }
+    });
+
+    contribution.payheroReference = response.data.reference || receiptNumber;
+    await contribution.save();
+
+    res.json({ message: 'STK Push sent successfully!', receiptNumber, payheroResponse: response.data });
+  } catch (err) {
+    const payheroError = err.response?.data;
+    const errorMessage = typeof payheroError === 'string' ? payheroError :
+      payheroError?.message || payheroError?.error || err.message || 'PayHero STK Push failed';
+    res.status(500).json({ error: errorMessage });
   }
 });
 
@@ -578,6 +676,19 @@ app.get('/api/admin/payment-logs', authenticate, authorize(['admin', 'treasurer'
     }
 
     res.json({ localContributions: localLogs, payheroLiveLogs });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ADMIN PAYMENTS (ADDED FOR 404 FIX)
+app.get('/api/admin/payments', authenticate, authorize(['admin', 'treasurer']), async (req, res) => {
+  try {
+    const payments = await Contribution.find()
+      .populate('church', 'name')
+      .populate('contributor', 'name email phone')
+      .sort({ createdAt: -1 });
+    res.json(payments);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
