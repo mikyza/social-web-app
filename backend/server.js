@@ -127,7 +127,7 @@ const Contribution = mongoose.model('Contribution', contributionSchema);
 const Notice = mongoose.model('Notice', noticeSchema);
 const Contact = mongoose.model('Contact', contactSchema);
 
-// SEED INITIAL ACCOUNTS, CHURCHES & PRODUCTS
+// SEED INITIAL ACCOUNTS, CHURCHES & PRODUCTS[cite: 3]
 async function seedDefaultAccounts() {
   try {
     const defaultChurches = ['Thiba', 'Ngurubani main', 'Ngurubani central', 'Kasarani', 'Nguka', 'Kiamanyeki', 'Nyaikungu', 'Kiarukungu', 'Kathigiriri'];
@@ -203,7 +203,7 @@ async function seedDefaultAccounts() {
   }
 }
 
-// MIDDLEWARES
+// MIDDLEWARES[cite: 3]
 const authenticate = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -241,7 +241,7 @@ const authorize = (roles = []) => {
   };
 };
 
-// AUTH ROUTES
+// AUTH ROUTES[cite: 3]
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { name, email, password, phone, churchId } = req.body;
@@ -281,7 +281,7 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// ADMIN USERS ROUTE (ADDED FOR 404 FIX)
+// ADMIN USERS ROUTE[cite: 3]
 app.get('/api/admin/users', authenticate, authorize(['admin']), async (req, res) => {
   try {
     const users = await User.find().populate('church', 'name').select('-password').sort({ createdAt: -1 });
@@ -291,7 +291,7 @@ app.get('/api/admin/users', authenticate, authorize(['admin']), async (req, res)
   }
 });
 
-// TARGETS ROUTES (ADDED FOR 404 FIX)
+// TARGETS ROUTES[cite: 3]
 app.get('/api/targets', async (req, res) => {
   try {
     const targets = await Target.find();
@@ -310,7 +310,7 @@ app.put('/api/targets/:id', authenticate, authorize(['admin', 'treasurer']), asy
   }
 });
 
-// CONTACT ROUTES (ADDED FOR 404 FIX)
+// CONTACT ROUTES[cite: 3]
 app.post('/api/contact', async (req, res) => {
   try {
     const { mobile, message } = req.body;
@@ -331,7 +331,7 @@ app.get('/api/contact', authenticate, authorize(['admin', 'pastor']), async (req
   }
 });
 
-// PHYSICAL PRODUCTS CRUD (ADMIN & PUBLIC)
+// PHYSICAL PRODUCTS CRUD (ADMIN & PUBLIC)[cite: 3]
 app.get('/api/products', async (req, res) => {
   try {
     const products = await Product.find({ isActive: true }).sort({ createdAt: -1 });
@@ -371,7 +371,7 @@ app.delete('/api/products/:id', authenticate, authorize(['admin']), async (req, 
   }
 });
 
-// PAYBILL CONFIGURATION & VERIFICATION ROUTE
+// PAYBILL CONFIGURATION & VERIFICATION ROUTE[cite: 3]
 app.get('/api/paybill/info', (req, res) => {
   res.json({
     paybillNumber: PAYBILL_NUMBER,
@@ -417,7 +417,7 @@ app.post('/api/contributions/paybill-verify', optionalAuth, async (req, res) => 
   }
 });
 
-// BASIC PAYHERO STK PUSH (ADDED FOR 404 FIX)
+// BASIC PAYHERO STK PUSH[cite: 3]
 app.post('/api/contributions/payhero-stk', optionalAuth, async (req, res) => {
   try {
     const { phone, amount, churchId, guestName } = req.body;
@@ -459,13 +459,14 @@ app.post('/api/contributions/payhero-stk', optionalAuth, async (req, res) => {
     res.json({ message: 'STK Push sent successfully!', receiptNumber, payheroResponse: response.data });
   } catch (err) {
     const payheroError = err.response?.data;
+    console.error('PayHero STK Error:', payheroError || err.message);
     const errorMessage = typeof payheroError === 'string' ? payheroError :
       payheroError?.message || payheroError?.error || err.message || 'PayHero STK Push failed';
     res.status(500).json({ error: errorMessage });
   }
 });
 
-// QUICK SUPPORT (SINGLE STK PUSH)
+// QUICK SUPPORT (SINGLE STK PUSH)[cite: 3]
 app.post('/api/contributions/quick-support', optionalAuth, async (req, res) => {
   try {
     const { phone, churchId, productId, quantity, customAmount, guestName } = req.body;
@@ -530,13 +531,14 @@ app.post('/api/contributions/quick-support', optionalAuth, async (req, res) => {
     res.json({ message: 'STK Push sent to phone!', receiptNumber, payheroResponse: response.data });
   } catch (err) {
     const payheroError = err.response?.data;
+    console.error('PayHero Quick Support Error:', payheroError || err.message);
     const errorMessage = typeof payheroError === 'string' ? payheroError :
       payheroError?.message || payheroError?.error || err.message || 'PayHero STK Push failed';
     res.status(500).json({ error: errorMessage });
   }
 });
 
-// MULTI-PRODUCT CART CHECKOUT
+// MULTI-PRODUCT CART CHECKOUT[cite: 3]
 app.post('/api/contributions/cart-checkout', optionalAuth, async (req, res) => {
   try {
     const { phone, churchId, cartItems, paymentMethod, mpesaCode, guestName } = req.body;
@@ -621,12 +623,13 @@ app.post('/api/contributions/cart-checkout', optionalAuth, async (req, res) => {
     }
   } catch (err) {
     const payheroError = err.response?.data;
+    console.error('PayHero Cart Checkout Error:', payheroError || err.message);
     const errorMessage = typeof payheroError === 'string' ? payheroError : payheroError?.message || err.message;
     res.status(500).json({ error: errorMessage });
   }
 });
 
-// PAYHERO CALLBACK WEBHOOK
+// PAYHERO CALLBACK WEBHOOK[cite: 3]
 app.post('/api/contributions/payhero-callback', async (req, res) => {
   try {
     const { external_reference, status, amount } = req.body;
@@ -657,7 +660,7 @@ app.post('/api/contributions/payhero-callback', async (req, res) => {
   }
 });
 
-// ADMIN AUDIT & LIVE PAYHERO LOGS
+// ADMIN AUDIT & LIVE PAYHERO LOGS[cite: 3]
 app.get('/api/admin/payment-logs', authenticate, authorize(['admin', 'treasurer']), async (req, res) => {
   try {
     const localLogs = await Contribution.find()
@@ -681,7 +684,7 @@ app.get('/api/admin/payment-logs', authenticate, authorize(['admin', 'treasurer'
   }
 });
 
-// ADMIN PAYMENTS (ADDED FOR 404 FIX)
+// ADMIN PAYMENTS[cite: 3]
 app.get('/api/admin/payments', authenticate, authorize(['admin', 'treasurer']), async (req, res) => {
   try {
     const payments = await Contribution.find()
@@ -694,7 +697,7 @@ app.get('/api/admin/payments', authenticate, authorize(['admin', 'treasurer']), 
   }
 });
 
-// VERIFICATION & CLEARANCE
+// VERIFICATION & CLEARANCE[cite: 3]
 app.put('/api/contributions/verify/:id', authenticate, authorize(['admin', 'treasurer']), async (req, res) => {
   try {
     const contribution = await Contribution.findById(req.params.id);
@@ -726,7 +729,7 @@ app.put('/api/contributions/verify/:id', authenticate, authorize(['admin', 'trea
   }
 });
 
-// ANNOUNCEMENTS / NOTICE BOARD
+// ANNOUNCEMENTS / NOTICE BOARD[cite: 3]
 app.get('/api/notices', async (req, res) => {
   try {
     const { churchId } = req.query;
@@ -774,7 +777,7 @@ app.delete('/api/notices/:id', authenticate, authorize(['admin', 'pastor']), asy
   }
 });
 
-// SUMMARY & TARGET ROUTES
+// SUMMARY & TARGET ROUTES[cite: 3]
 app.get('/api/contributions/summary', async (req, res) => {
   try {
     const totalRaised = await Contribution.aggregate([
@@ -811,7 +814,7 @@ app.get('/api/churches', async (req, res) => {
   }
 });
 
-// SERVER LISTEN
+// SERVER LISTEN[cite: 3]
 app.listen(PORT, () => {
   console.log(`Mwea West Youth Server running on port ${PORT}`);
 });
