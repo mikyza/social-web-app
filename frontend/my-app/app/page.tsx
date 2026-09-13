@@ -773,7 +773,7 @@ export default function TwendeMissionApp() {
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">PayHero Paybill Number</p>
                         <h4 className="text-4xl font-black text-slate-900 tracking-widest my-2">12252</h4>
                         <div className="mt-4 text-left p-3 bg-slate-50 rounded-lg border border-slate-100 space-y-2 text-sm">
-                          <p><strong>Step 1:</strong> Go to M-Pesa Menu -> Lipa na M-Pesa -> Paybill</p>
+                        <p><strong>Step 1:</strong> Go to M-Pesa Menu &rarr; Lipa na M-Pesa &rarr; Paybill</p>
                           <p><strong>Step 2:</strong> Enter Business No: <strong>12252</strong></p>
                           <p><strong>Step 3:</strong> Enter Account No: <strong>Your Name/Church</strong></p>
                           <p><strong>Step 4:</strong> Enter Amount and your PIN.</p>
