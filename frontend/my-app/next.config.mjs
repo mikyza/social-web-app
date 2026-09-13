@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Add any custom Next.js config options here if needed
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://social-web-app.onrender.com/api/:path*', // Replace with your exact backend service Render URL if it differs
+      },
+    ];
+  },
 };
 
 export default nextConfig;
