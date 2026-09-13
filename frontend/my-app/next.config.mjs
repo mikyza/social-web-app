@@ -4,7 +4,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://social-web-app.onrender.com/api/:path*', // Replace with your exact backend service Render URL if it differs
+    destination: 'https://social-web-app-c1gd.onrender.com/api/:path*',
       },
     ];
   },
