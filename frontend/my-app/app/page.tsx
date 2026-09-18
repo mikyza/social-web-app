@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from 'react';
 
 // --- CONFIGURATION ---
-// Updated to standard localhost for local development without ngrok.
-// You can override this by setting NEXT_PUBLIC_API_URL in your .env.local file.
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://social-web-app-c1gd.onrender.com';
 
 // --- TYPES & INTERFACES ---
@@ -167,7 +165,6 @@ export default function TwendeMissionApp() {
   const [alertMessage, setAlertMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Utility to safely parse JSON responses to prevent "Unexpected token < in JSON" API crashes
   const safeJsonParse = async (res: Response) => {
     try {
       const text = await res.text();
@@ -177,7 +174,6 @@ export default function TwendeMissionApp() {
     }
   };
 
-  // Initial Load
   useEffect(() => {
     const savedToken = localStorage.getItem('twende_token');
     const savedUser = localStorage.getItem('twende_user');
@@ -621,131 +617,202 @@ export default function TwendeMissionApp() {
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col">
       {/* ALERT NOTIFICATION */}
       {alertMessage && (
-        <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-xl text-white font-medium flex items-center space-x-2 transition-all ${alertMessage.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'}`}>
+        <div className={`fixed top-4 right-4 z-50 px-6 py-4 rounded-xl shadow-2xl text-white font-medium flex items-center space-x-2 transition-all transform animate-fade-in-down ${alertMessage.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'}`}>
           <span>{alertMessage.text}</span>
         </div>
       )}
 
       {/* HEADER / NAVIGATION */}
-      <header className="bg-slate-900 text-white sticky top-0 z-40 shadow-md">
+      <header className="bg-slate-900 text-white sticky top-0 z-40 shadow-xl border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setActiveTab('home')}>
-            <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center font-black text-slate-900 text-xl shadow-lg">
+          <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setActiveTab('home')}>
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center font-black text-slate-900 text-2xl shadow-lg transform group-hover:rotate-6 transition-all duration-300">
               M
             </div>
             <div>
-              <h1 className="text-lg font-bold tracking-tight text-white leading-tight">Mwea West Youth</h1>
-              <p className="text-xs text-emerald-400 font-medium tracking-wide">Twende Mission Channel</p>
+              <h1 className="text-xl font-bold tracking-tight text-white leading-tight">Mwea West Youth</h1>
+              <p className="text-xs text-emerald-400 font-semibold tracking-wider uppercase">Twende Mission</p>
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center space-x-1">
-            <button onClick={() => setActiveTab('home')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'home' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:text-white hover:bg-slate-800'}`}>Home</button>
-            <button onClick={() => setActiveTab('mission')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'mission' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:text-white hover:bg-slate-800'}`}>Mission</button>
-            <button onClick={() => setActiveTab('summary')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'summary' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:text-white hover:bg-slate-800'}`}>Contributions</button>
-            <button onClick={() => setActiveTab('chatwall')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'chatwall' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:text-white hover:bg-slate-800'}`}>Chat Wall</button>
-            <button onClick={() => setActiveTab('contact')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'contact' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:text-white hover:bg-slate-800'}`}>Contact</button>
+          <nav className="hidden md:flex items-center space-x-2">
+            <button onClick={() => setActiveTab('home')} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === 'home' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:text-white hover:bg-slate-800'}`}>Home</button>
+            <button onClick={() => setActiveTab('mission')} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === 'mission' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:text-white hover:bg-slate-800'}`}>Mission Info</button>
+            <button onClick={() => setActiveTab('summary')} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === 'summary' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:text-white hover:bg-slate-800'}`}>Contributions</button>
+            <button onClick={() => setActiveTab('chatwall')} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === 'chatwall' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:text-white hover:bg-slate-800'}`}>Chat Wall</button>
+            <button onClick={() => setActiveTab('contact')} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === 'contact' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-300 hover:text-white hover:bg-slate-800'}`}>Contact</button>
             {currentUser && (
-              <button onClick={() => setActiveTab('dashboard')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'dashboard' ? 'bg-indigo-600 text-white' : 'text-indigo-300 hover:bg-indigo-900/50'}`}>Dashboard</button>
+              <button onClick={() => setActiveTab('dashboard')} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-indigo-600 text-white shadow-md' : 'text-indigo-300 hover:bg-indigo-900/50'}`}>Admin Panel</button>
             )}
           </nav>
 
           <div className="flex items-center space-x-3">
             {currentUser ? (
-              <div className="flex items-center space-x-3">
-                <span className="hidden sm:inline-block text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-800 text-emerald-400 border border-slate-700 capitalize">{currentUser.role.replace('_', ' ')}</span>
-                <button onClick={handleLogout} className="px-4 py-2 text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-all">Sign Out</button>
+              <div className="flex items-center space-x-4">
+                <div className="hidden sm:flex flex-col text-right">
+                  <span className="text-sm font-bold text-white">{currentUser.name}</span>
+                  <span className="text-[10px] font-black uppercase text-emerald-400 tracking-widest">{currentUser.role.replace('_', ' ')}</span>
+                </div>
+                <button onClick={handleLogout} className="px-5 py-2 text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition-all duration-300 shadow-sm">Sign Out</button>
               </div>
             ) : (
-              <button onClick={() => setShowAuthModal(true)} className="px-5 py-2.5 text-xs font-bold text-slate-900 bg-emerald-400 hover:bg-emerald-300 rounded-xl shadow-md transition-all">Sign In / Register</button>
+              <button onClick={() => setShowAuthModal(true)} className="px-6 py-2.5 text-xs font-black text-slate-900 bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-300 hover:to-emerald-400 rounded-xl shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 transform hover:-translate-y-0.5 uppercase tracking-wide">Sign In</button>
             )}
           </div>
         </div>
       </header>
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
         
-        {/* --- TAB: HOME --- */}
+        {/* --- TAB: HOME / LANDING PAGE --- */}
         {activeTab === 'home' && (
-          <div className="space-y-10">
-            {/* Hero Card */}
-            <div className="relative rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 text-white p-8 md:p-12 overflow-hidden shadow-2xl border border-slate-800">
-              <div className="relative z-10 max-w-2xl space-y-4">
-                <span className="inline-block px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full text-xs font-bold tracking-wide uppercase">Official District Channel</span>
-                <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">Mwea West District Youth Twende Mission</h2>
-                <p className="text-slate-300 text-sm sm:text-base font-normal leading-relaxed">
-                  Support our evangelical and youth empowerment mission across Mwea West District. Contribute via PayHero M-Pesa STK push, Paybill, Cart, or donate physical products like rice.
+          <div className="space-y-16">
+            
+            {/* 1. Hero Section */}
+            <div className="relative rounded-[2rem] bg-slate-900 text-white overflow-hidden shadow-2xl border border-slate-800 min-h-[500px] flex items-center">
+              {/* Vibrant Background Image Placeholder representing African Youth / Community */}
+              <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" alt="Mwea West Youths Gathering" className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay" />
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/80 to-transparent"></div>
+              
+              <div className="relative z-10 max-w-3xl p-10 md:p-16 space-y-6">
+                <div className="inline-flex items-center space-x-2 px-4 py-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full text-xs font-black tracking-widest uppercase">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>Official District Channel</span>
+                </div>
+                <h2 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.1] text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">
+                  Empowering the Youth of <span className="text-emerald-400">Mwea West</span>
+                </h2>
+                <p className="text-slate-300 text-base sm:text-lg font-medium leading-relaxed max-w-2xl">
+                  Join the Twende Mission. We are uniting young believers across the district to drive community transformation, spiritual revival, and direct relief for families in need. Your contribution fuels our impact.
                 </p>
 
-                <div className="pt-4 flex flex-wrap gap-3">
-                  <a href="#quick-pay" className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm rounded-xl shadow-lg transition-all">Contribute via M-Pesa</a>
-                  <button onClick={() => setActiveTab('mission')} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold text-sm rounded-xl border border-slate-700 transition-all">Learn About Mission</button>
+                <div className="pt-4 flex flex-wrap gap-4">
+                  <button onClick={() => document.getElementById('quick-pay')?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm rounded-2xl shadow-xl hover:shadow-emerald-500/20 transition-all duration-300 transform hover:-translate-y-1 uppercase tracking-wide">
+                    Contribute Now
+                  </button>
+                  <button onClick={() => setActiveTab('mission')} className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-bold text-sm rounded-2xl border border-white/20 transition-all duration-300 transform hover:-translate-y-1">
+                    Read Our Story
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* Target Progress Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* 2. Vision & Mission Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="p-10 bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl transition-all duration-300 group">
+                <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-black mb-6 group-hover:scale-110 transition-transform duration-300">🎯</div>
+                <h3 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Our Mission</h3>
+                <p className="text-slate-600 leading-relaxed font-medium">
+                  To mobilize, equip, and empower the youth of Mwea West District for holistic evangelical outreach. We aim to share hope through practical charity, spiritual mentorship, and active community engagement, ensuring no family is left behind during times of need.
+                </p>
+              </div>
+              <div className="p-10 bg-slate-900 text-white rounded-[2rem] border border-slate-800 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+                <div className="w-14 h-14 bg-slate-800 text-emerald-400 rounded-2xl flex items-center justify-center text-2xl font-black mb-6 group-hover:scale-110 transition-transform duration-300">✨</div>
+                <h3 className="text-3xl font-black text-white mb-4 tracking-tight">Our Vision</h3>
+                <p className="text-slate-400 leading-relaxed font-medium">
+                  A united, vibrant, and purpose-driven generation of young leaders in Mwea West, recognized for their unwavering faith, socioeconomic empowerment initiatives, and transformative impact across the entire district and beyond.
+                </p>
+              </div>
+            </div>
+
+            {/* 3. Youth In Action Image Gallery */}
+            <div className="space-y-8">
+              <div className="text-center space-y-2">
+                <h3 className="text-3xl font-black text-slate-900 tracking-tight">Youths in Action</h3>
+                <p className="text-slate-500 font-medium">Glimpses of our recent community outreach and fellowship.</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div className="relative h-64 rounded-3xl overflow-hidden shadow-lg group">
+                  <img src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=800&q=80" alt="Youth Engagement" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                    <span className="text-white font-bold tracking-wide">Community Outreach</span>
+                  </div>
+                </div>
+                <div className="relative h-64 rounded-3xl overflow-hidden shadow-lg group">
+                  <img src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&w=800&q=80" alt="Teamwork" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                    <span className="text-white font-bold tracking-wide">Relief Distribution</span>
+                  </div>
+                </div>
+                <div className="relative h-64 rounded-3xl overflow-hidden shadow-lg group">
+                  <img src="https://images.unsplash.com/photo-1526976663186-ea610cc9a128?auto=format&fit=crop&w=800&q=80" alt="Fellowship" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                    <span className="text-white font-bold tracking-wide">Youth Fellowship</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Target Progress Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Monetary Target */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+              <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 space-y-6">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Financial Target</p>
-                    <h3 className="text-2xl font-black text-slate-800">KES {raisedCash.toLocaleString()} <span className="text-sm font-medium text-slate-500">/ {targetCash.toLocaleString()}</span></h3>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold">💰</span>
+                      <p className="text-sm font-black uppercase tracking-wider text-slate-400">Financial Goal</p>
+                    </div>
+                    <h3 className="text-3xl font-black text-slate-800">KES {raisedCash.toLocaleString()} <span className="text-lg font-medium text-slate-400">/ {targetCash.toLocaleString()}</span></h3>
                   </div>
-                  <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold">{cashPercentage}%</span>
+                  <span className="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-2xl text-lg font-black">{cashPercentage}%</span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden">
-                  <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${cashPercentage}%` }}></div>
+                <div className="w-full bg-slate-100 rounded-full h-4 overflow-hidden shadow-inner">
+                  <div className="bg-gradient-to-r from-emerald-400 to-emerald-600 h-full rounded-full transition-all duration-1000" style={{ width: `${cashPercentage}%` }}></div>
                 </div>
-                <p className="text-xs text-slate-500 font-medium">Updated automatically upon verified PayHero & cash contributions.</p>
+                <p className="text-sm text-slate-500 font-medium">Updated live upon verified PayHero & logged cash contributions.</p>
               </div>
 
               {/* Physical Product Target */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+              <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 space-y-6">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Physical Goods Target (Rice)</p>
-                    <h3 className="text-2xl font-black text-slate-800">{riceRaised} Kg <span className="text-sm font-medium text-slate-500">/ {riceTarget} Kg</span></h3>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">🌾</span>
+                      <p className="text-sm font-black uppercase tracking-wider text-slate-400">Physical Goods (Rice)</p>
+                    </div>
+                    <h3 className="text-3xl font-black text-slate-800">{riceRaised} Kg <span className="text-lg font-medium text-slate-400">/ {riceTarget} Kg</span></h3>
                   </div>
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">{ricePercentage}%</span>
+                  <span className="px-4 py-2 bg-blue-100 text-blue-700 rounded-2xl text-lg font-black">{ricePercentage}%</span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden">
-                  <div className="bg-blue-600 h-full rounded-full transition-all duration-500" style={{ width: `${ricePercentage}%` }}></div>
+                <div className="w-full bg-slate-100 rounded-full h-4 overflow-hidden shadow-inner">
+                  <div className="bg-gradient-to-r from-blue-400 to-blue-600 h-full rounded-full transition-all duration-1000" style={{ width: `${ricePercentage}%` }}></div>
                 </div>
-                <p className="text-xs text-slate-500 font-medium">Set Cash Equivalent: KES {riceItem?.cashPricePerUnit || 150} per Kg</p>
+                <p className="text-sm text-slate-500 font-medium">Cash Equivalent Standard: KES {riceItem?.cashPricePerUnit || 150} per Kg</p>
               </div>
             </div>
 
-            {/* Quick Pay / Contribution Form Section */}
-            <div id="quick-pay" className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-              <div>
-                <h3 className="text-xl font-bold text-slate-900">Make Your Mission Contribution</h3>
-                <p className="text-xs sm:text-sm text-slate-500">Select your preferred digital payment method or log physical goods.</p>
+            {/* 5. Quick Pay / Contribution Form Section */}
+            <div id="quick-pay" className="bg-white rounded-[2rem] p-8 sm:p-12 border border-slate-100 shadow-2xl shadow-slate-200/50 space-y-8 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full blur-3xl -z-10 opacity-60"></div>
+              
+              <div className="text-center max-w-2xl mx-auto space-y-3">
+                <h3 className="text-3xl font-black text-slate-900 tracking-tight">Make Your Mission Contribution</h3>
+                <p className="text-base text-slate-500 font-medium">Select your preferred digital payment method or officially log physical goods dropped at local churches.</p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 {/* Digital Payments Panel */}
-                <div className="space-y-4 p-6 bg-slate-50 rounded-2xl border border-slate-200">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-bold text-slate-800 text-sm uppercase tracking-wide">1. Digital Payments</h4>
-                    <div className="flex space-x-1 bg-slate-200 p-1 rounded-lg">
-                      <button type="button" onClick={() => setPaymentMethodTab('stk')} className={`px-3 py-1 text-[10px] font-bold rounded ${paymentMethodTab === 'stk' ? 'bg-white shadow text-emerald-700' : 'text-slate-600 hover:text-slate-800'}`}>STK</button>
-                      <button type="button" onClick={() => setPaymentMethodTab('cart')} className={`px-3 py-1 text-[10px] font-bold rounded ${paymentMethodTab === 'cart' ? 'bg-white shadow text-emerald-700' : 'text-slate-600 hover:text-slate-800'}`}>CART</button>
-                      <button type="button" onClick={() => setPaymentMethodTab('paybill')} className={`px-3 py-1 text-[10px] font-bold rounded ${paymentMethodTab === 'paybill' ? 'bg-white shadow text-emerald-700' : 'text-slate-600 hover:text-slate-800'}`}>PAYBILL</button>
+                <div className="space-y-6 p-8 bg-slate-50 rounded-[2rem] border border-slate-200 shadow-inner">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <h4 className="font-black text-slate-800 text-lg tracking-tight">1. Digital Payments</h4>
+                    <div className="flex p-1.5 bg-slate-200/80 rounded-xl shadow-inner w-full sm:w-auto">
+                      <button type="button" onClick={() => setPaymentMethodTab('stk')} className={`flex-1 sm:flex-none px-4 py-2 text-xs font-black rounded-lg transition-all ${paymentMethodTab === 'stk' ? 'bg-white shadow-md text-emerald-700' : 'text-slate-600 hover:text-slate-900'}`}>STK PUSH</button>
+                      <button type="button" onClick={() => setPaymentMethodTab('cart')} className={`flex-1 sm:flex-none px-4 py-2 text-xs font-black rounded-lg transition-all ${paymentMethodTab === 'cart' ? 'bg-white shadow-md text-emerald-700' : 'text-slate-600 hover:text-slate-900'}`}>CART</button>
+                      <button type="button" onClick={() => setPaymentMethodTab('paybill')} className={`flex-1 sm:flex-none px-4 py-2 text-xs font-black rounded-lg transition-all ${paymentMethodTab === 'paybill' ? 'bg-white shadow-md text-emerald-700' : 'text-slate-600 hover:text-slate-900'}`}>PAYBILL</button>
                     </div>
                   </div>
 
                   {/* Common Details for Digital Auth */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">Full Name</label>
-                      <input type="text" placeholder="Your Name" value={stkName} onChange={(e) => setStkName(e.target.value)} required className="w-full text-sm px-4 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                      <label className="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wide">Full Name</label>
+                      <input type="text" placeholder="Your Name" value={stkName} onChange={(e) => setStkName(e.target.value)} required className="w-full text-sm px-5 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-sm transition-all" />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">Church</label>
-                      <select value={stkChurchId} onChange={(e) => setStkChurchId(e.target.value)} required className="w-full text-sm px-4 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                      <label className="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wide">Local Church</label>
+                      <select value={stkChurchId} onChange={(e) => setStkChurchId(e.target.value)} required className="w-full text-sm px-5 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-sm transition-all appearance-none cursor-pointer">
                         <option value="">Select church...</option>
                         {churches.map((c) => (
                           <option key={c._id} value={c._id}>{c.name}</option>
@@ -755,63 +822,63 @@ export default function TwendeMissionApp() {
                   </div>
 
                   {paymentMethodTab === 'stk' && (
-                    <form onSubmit={handlePayHeroSTK} className="space-y-4 pt-2">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <form onSubmit={handlePayHeroSTK} className="space-y-6 pt-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
-                          <label className="block text-xs font-semibold text-slate-600 mb-1">M-Pesa Number</label>
-                          <input type="text" placeholder="0712345678" value={stkPhone} onChange={(e) => setStkPhone(e.target.value)} required className="w-full text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                          <label className="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wide">M-Pesa Number</label>
+                          <input type="text" placeholder="0712345678" value={stkPhone} onChange={(e) => setStkPhone(e.target.value)} required className="w-full text-sm px-5 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 shadow-sm transition-all" />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-slate-600 mb-1">Amount (KES)</label>
-                          <input type="number" placeholder="500" value={stkAmount} onChange={(e) => setStkAmount(e.target.value ? Number(e.target.value) : '')} required className="w-full text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                          <label className="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wide">Amount (KES)</label>
+                          <input type="number" placeholder="500" value={stkAmount} onChange={(e) => setStkAmount(e.target.value ? Number(e.target.value) : '')} required className="w-full text-sm px-5 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 shadow-sm transition-all" />
                         </div>
                       </div>
-                      <button type="submit" disabled={loading} className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl shadow-sm transition-all disabled:opacity-50">
-                        {loading ? 'Triggering STK Push...' : 'Send M-Pesa Prompt'}
+                      <button type="submit" disabled={loading} className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-black text-sm rounded-xl shadow-lg hover:shadow-slate-900/25 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none">
+                        {loading ? 'Triggering STK Push...' : 'Send M-Pesa Prompt Now'}
                       </button>
                     </form>
                   )}
 
                   {paymentMethodTab === 'cart' && (
-                    <div className="space-y-4 pt-2 border-t border-slate-200 mt-2">
-                      <div className="flex gap-2 items-end">
+                    <div className="space-y-5 pt-2 border-t border-slate-200 mt-4">
+                      <div className="flex gap-3 items-end">
                         <div className="flex-1">
-                          <label className="block text-xs font-semibold text-slate-600 mb-1">Select Item</label>
-                          <select value={cartSelectedItem} onChange={(e) => setCartSelectedItem(e.target.value)} className="w-full text-sm px-3 py-2 bg-white border border-slate-300 rounded-xl focus:outline-none">
+                          <label className="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wide">Select Item</label>
+                          <select value={cartSelectedItem} onChange={(e) => setCartSelectedItem(e.target.value)} className="w-full text-sm px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 cursor-pointer">
                             <option value="Rice Contribution">Rice Contribution (KES 150)</option>
                             <option value="General Offering">General Offering (KES 500)</option>
                             <option value="Youth Camp Fee">Youth Camp Fee (KES 1000)</option>
                           </select>
                         </div>
-                        <div className="w-20">
-                          <label className="block text-xs font-semibold text-slate-600 mb-1">Qty</label>
-                          <input type="number" min="1" value={cartQty} onChange={(e) => setCartQty(Number(e.target.value))} className="w-full text-sm px-3 py-2 bg-white border border-slate-300 rounded-xl focus:outline-none" />
+                        <div className="w-24">
+                          <label className="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wide">Qty</label>
+                          <input type="number" min="1" value={cartQty} onChange={(e) => setCartQty(Number(e.target.value))} className="w-full text-sm px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 text-center" />
                         </div>
-                        <button type="button" onClick={handleAddToCart} className="py-2 px-4 bg-slate-800 text-white font-bold text-sm rounded-xl hover:bg-slate-700">Add</button>
+                        <button type="button" onClick={handleAddToCart} className="py-3 px-5 bg-emerald-100 text-emerald-800 font-black text-sm rounded-xl hover:bg-emerald-200 transition-colors shadow-sm">Add</button>
                       </div>
                       
                       {cartItems.length > 0 && (
-                        <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                          <h5 className="text-xs font-bold text-slate-700">Your Cart</h5>
-                          <ul className="text-xs text-slate-600 space-y-1">
+                        <div className="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm space-y-3">
+                          <h5 className="text-xs font-black text-slate-800 uppercase tracking-wide border-b border-slate-100 pb-2">Your Contribution Cart</h5>
+                          <ul className="text-sm text-slate-600 space-y-2 font-medium">
                             {cartItems.map(item => (
-                              <li key={item.id} className="flex justify-between">
+                              <li key={item.id} className="flex justify-between items-center">
                                 <span>{item.qty}x {item.name}</span>
-                                <span>KES {item.price * item.qty}</span>
+                                <span className="font-bold text-slate-900">KES {item.price * item.qty}</span>
                               </li>
                             ))}
                           </ul>
-                          <div className="pt-2 border-t border-slate-100 flex justify-between font-bold text-slate-800">
-                            <span>Total:</span>
+                          <div className="pt-3 border-t border-slate-100 flex justify-between font-black text-emerald-700 text-lg">
+                            <span>Total Due:</span>
                             <span>KES {cartTotal}</span>
                           </div>
                         </div>
                       )}
 
                       <div className="pt-2">
-                        <label className="block text-xs font-semibold text-slate-600 mb-1">M-Pesa Number for Checkout</label>
-                        <input type="text" placeholder="0712345678" value={stkPhone} onChange={(e) => setStkPhone(e.target.value)} className="w-full text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl mb-3 focus:outline-none" />
-                        <button type="button" onClick={handleCartCheckout} disabled={loading || cartItems.length === 0} className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl transition-all disabled:opacity-50">
+                        <label className="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wide">M-Pesa Number for Checkout</label>
+                        <input type="text" placeholder="0712345678" value={stkPhone} onChange={(e) => setStkPhone(e.target.value)} className="w-full text-sm px-5 py-3 bg-white border border-slate-200 rounded-xl mb-4 shadow-sm focus:ring-2 focus:ring-emerald-500" />
+                        <button type="button" onClick={handleCartCheckout} disabled={loading || cartItems.length === 0} className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-black text-sm rounded-xl shadow-lg hover:shadow-slate-900/25 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none">
                           {loading ? 'Processing Checkout...' : `Checkout Cart (KES ${cartTotal})`}
                         </button>
                       </div>
@@ -819,55 +886,68 @@ export default function TwendeMissionApp() {
                   )}
 
                   {paymentMethodTab === 'paybill' && (
-                    <div className="space-y-4 pt-4 text-center">
-                      <div className="bg-white p-6 rounded-xl border border-emerald-200">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">PayHero Paybill Number</p>
-                        <h4 className="text-4xl font-black text-slate-900 tracking-widest my-2">12252</h4>
-                        <div className="mt-4 text-left p-3 bg-slate-50 rounded-lg border border-slate-100 space-y-2 text-sm">
-                        <p><strong>Step 1:</strong> Go to M-Pesa Menu &rarr; Lipa na M-Pesa &rarr; Paybill</p>
-                          <p><strong>Step 2:</strong> Enter Business No: <strong>12252</strong></p>
-                          <p><strong>Step 3:</strong> Enter Account No: <strong>Your Name/Church</strong></p>
-                          <p><strong>Step 4:</strong> Enter Amount and your PIN.</p>
+                    <div className="space-y-6 pt-4 text-center">
+                      <div className="bg-white p-8 rounded-[2rem] border-2 border-emerald-100 shadow-md">
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">PayHero Paybill Number</p>
+                        <h4 className="text-5xl font-black text-emerald-600 tracking-widest drop-shadow-sm">12252</h4>
+                        
+                        <div className="mt-8 text-left p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-3 text-sm font-medium text-slate-600">
+                          <p className="flex items-center space-x-3">
+                            <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0">1</span>
+                            <span>Go to M-Pesa Menu &rarr; Lipa na M-Pesa &rarr; Paybill</span>
+                          </p>
+                          <p className="flex items-center space-x-3">
+                            <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0">2</span>
+                            <span>Enter Business No: <strong className="text-slate-900">12252</strong></span>
+                          </p>
+                          <p className="flex items-center space-x-3">
+                            <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0">3</span>
+                            <span>Enter Account No: <strong className="text-slate-900">Your Name/Church</strong></span>
+                          </p>
+                          <p className="flex items-center space-x-3">
+                            <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0">4</span>
+                            <span>Enter Amount and your PIN to complete.</span>
+                          </p>
                         </div>
                       </div>
-                      <p className="text-xs text-slate-500">Payments made via Paybill are verified automatically into the system.</p>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Payments are automatically verified into the system.</p>
                     </div>
                   )}
                 </div>
 
                 {/* Physical Product Log */}
-                <form onSubmit={handlePhysicalContribution} className="space-y-4 p-6 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col justify-between">
+                <form onSubmit={handlePhysicalContribution} className="space-y-6 p-8 bg-blue-50/50 rounded-[2rem] border border-blue-100 shadow-inner flex flex-col justify-between">
                   <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="font-bold text-slate-800 text-sm uppercase tracking-wide">2. Physical Contribution</h4>
-                      <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded">Leader Approval</span>
+                    <div className="flex items-center justify-between mb-6">
+                      <h4 className="font-black text-slate-800 text-lg tracking-tight">2. Physical Contribution</h4>
+                      <span className="text-[10px] bg-blue-100 text-blue-800 font-black px-3 py-1 rounded-lg tracking-wider uppercase border border-blue-200">Leader Approval Required</span>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-600 mb-1">Church Handover Location</label>
-                        <select value={physChurchId} onChange={(e) => setPhysChurchId(e.target.value)} required className="w-full text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                          <option value="">Select church location...</option>
+                        <label className="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wide">Church Handover Location</label>
+                        <select value={physChurchId} onChange={(e) => setPhysChurchId(e.target.value)} required className="w-full text-sm px-5 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer appearance-none">
+                          <option value="">Select drop-off location...</option>
                           {churches.map((c) => (
                             <option key={c._id} value={c._id}>{c.name}</option>
                           ))}
                         </select>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
-                          <label className="block text-xs font-semibold text-slate-600 mb-1">Item Contributed</label>
-                          <input type="text" value={physItemName} onChange={(e) => setPhysItemName(e.target.value)} required className="w-full text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                          <label className="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wide">Item Contributed</label>
+                          <input type="text" value={physItemName} onChange={(e) => setPhysItemName(e.target.value)} required className="w-full text-sm px-5 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 shadow-sm" />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-slate-600 mb-1">Quantity (Kg/Units)</label>
-                          <input type="number" min="1" value={physQty} onChange={(e) => setPhysQty(Number(e.target.value))} required className="w-full text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                          <label className="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wide">Quantity (Kg/Units)</label>
+                          <input type="number" min="1" value={physQty} onChange={(e) => setPhysQty(Number(e.target.value))} required className="w-full text-sm px-5 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 shadow-sm text-center" />
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <button type="submit" disabled={loading} className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-sm transition-all disabled:opacity-50 mt-4">
+                  <button type="submit" disabled={loading} className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm rounded-xl shadow-lg hover:shadow-blue-600/30 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none mt-6">
                     Submit Physical Item Record
                   </button>
                 </form>
@@ -875,14 +955,14 @@ export default function TwendeMissionApp() {
             </div>
 
             {/* Receipt Quick Search */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div>
-                <h4 className="font-bold text-slate-900 text-sm">Need your contribution receipt?</h4>
-                <p className="text-xs text-slate-500">Enter your official receipt number (e.g. REC-1725...) to generate a copy.</p>
+            <div className="bg-slate-900 p-8 md:p-10 rounded-[2rem] border border-slate-800 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 text-white">
+              <div className="text-center md:text-left">
+                <h4 className="font-black text-2xl tracking-tight mb-2">Need your contribution receipt?</h4>
+                <p className="text-sm text-slate-400 font-medium">Enter your official digital receipt number (e.g., REC-1725...) to generate a printable copy.</p>
               </div>
-              <div className="flex w-full sm:w-auto space-x-2">
-                <input type="text" placeholder="Enter Receipt No." value={searchReceiptNo} onChange={(e) => setSearchReceiptNo(e.target.value)} className="px-4 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
-                <button onClick={() => fetchReceipt(searchReceiptNo)} className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-all">Lookup</button>
+              <div className="flex w-full md:w-auto space-x-3">
+                <input type="text" placeholder="Enter Receipt No." value={searchReceiptNo} onChange={(e) => setSearchReceiptNo(e.target.value)} className="w-full md:w-64 px-5 py-3 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all shadow-inner" />
+                <button onClick={() => fetchReceipt(searchReceiptNo)} className="px-6 py-3 bg-emerald-500 text-slate-950 text-sm font-black rounded-xl hover:bg-emerald-400 transition-all shadow-lg hover:shadow-emerald-500/25">Lookup</button>
               </div>
             </div>
           </div>
@@ -890,33 +970,36 @@ export default function TwendeMissionApp() {
 
         {/* --- TAB: MISSION DETAILS --- */}
         {activeTab === 'mission' && (
-          <div className="max-w-4xl mx-auto space-y-8 bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-            <div>
-              <span className="text-xs font-bold uppercase text-emerald-600 tracking-wider">About Twende Mission</span>
-              <h2 className="text-3xl font-black text-slate-900 mt-1">Mwea West Youth Evangelical & Outreach Plan</h2>
+          <div className="max-w-4xl mx-auto space-y-10 bg-white p-10 md:p-16 rounded-[2.5rem] border border-slate-100 shadow-2xl">
+            <div className="text-center space-y-4">
+              <span className="inline-block px-4 py-1 bg-emerald-100 text-emerald-700 font-black text-xs uppercase tracking-widest rounded-full">About The Mission</span>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">Mwea West Youth Evangelical Plan</h2>
             </div>
 
-            <div className="prose prose-slate max-w-none text-slate-600 space-y-4 text-sm sm:text-base leading-relaxed">
-              <p>
+            <div className="prose prose-lg prose-slate max-w-none text-slate-600 font-medium leading-relaxed">
+              <p className="text-xl text-slate-700 font-semibold mb-6 text-center">
                 The <strong>Mwea West District Youth Twende Mission</strong> brings together youth members across all churches in the district to support community projects, spiritual outreach, and direct relief for families in need.
               </p>
               <p>
-                Contributions received through this portal support both monetary logistics and direct physical goods distribution, including rice supply and youth development camps.
+                Contributions received through this portal support both monetary logistics and direct physical goods distribution, including essential food supplies like rice, and funding for critical youth development camps designed to nurture the next generation of leaders.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-              <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200">
-                <h4 className="font-bold text-slate-800 text-sm">Transparent Accounting</h4>
-                <p className="text-xs text-slate-500 mt-1">All M-Pesa STK transactions are automatically cross-checked against PayHero logs.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-slate-100">
+              <div className="p-8 bg-slate-50 rounded-3xl border border-slate-200 hover:shadow-lg transition-all duration-300">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-xl mb-4">📊</div>
+                <h4 className="font-black text-slate-800 text-lg mb-2">Transparent Accounting</h4>
+                <p className="text-sm text-slate-500 font-medium leading-relaxed">All digital transactions are strictly cross-checked and verified automatically against PayHero logs.</p>
               </div>
-              <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200">
-                <h4 className="font-bold text-slate-800 text-sm">Church Leader Clearance</h4>
-                <p className="text-xs text-slate-500 mt-1">Physical grain and item contributions are verified by local church leaders.</p>
+              <div className="p-8 bg-slate-50 rounded-3xl border border-slate-200 hover:shadow-lg transition-all duration-300">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-xl mb-4">✅</div>
+                <h4 className="font-black text-slate-800 text-lg mb-2">Leader Clearance</h4>
+                <p className="text-sm text-slate-500 font-medium leading-relaxed">Physical grain and item contributions are physically verified by appointed local church leaders.</p>
               </div>
-              <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200">
-                <h4 className="font-bold text-slate-800 text-sm">District Pastor Oversight</h4>
-                <p className="text-xs text-slate-500 mt-1">Comprehensive analytics and reports are made accessible churchwise.</p>
+              <div className="p-8 bg-slate-50 rounded-3xl border border-slate-200 hover:shadow-lg transition-all duration-300">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-xl mb-4">🛡️</div>
+                <h4 className="font-black text-slate-800 text-lg mb-2">Pastor Oversight</h4>
+                <p className="text-sm text-slate-500 font-medium leading-relaxed">Comprehensive analytics and transparent reports are made accessible to ensure maximum accountability.</p>
               </div>
             </div>
           </div>
@@ -924,144 +1007,174 @@ export default function TwendeMissionApp() {
 
         {/* --- TAB: SUMMARY / STATS --- */}
         {activeTab === 'summary' && (
-          <div className="space-y-6">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-              <h3 className="text-xl font-bold text-slate-900">Churchwise Contribution Summary</h3>
-              <p className="text-xs text-slate-500">Live aggregated contributions from all churches in Mwea West District.</p>
+          <div className="space-y-8 max-w-6xl mx-auto">
+            <div className="bg-slate-900 text-white p-10 rounded-[2rem] shadow-xl text-center space-y-3">
+              <h3 className="text-3xl font-black tracking-tight">Churchwise Contribution Summary</h3>
+              <p className="text-slate-400 font-medium text-lg">Live aggregated data reflecting contributions from all participating churches across Mwea West District.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {summaryData?.churchwiseBreakdown.map((item, idx) => (
-                <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                  <h4 className="font-bold text-slate-800 text-lg">{item.churchName}</h4>
-                  <p className="text-2xl font-black text-emerald-600">KES {item.totalAmount.toLocaleString()}</p>
-                  <p className="text-xs text-slate-400 font-medium">{item.count} total verified payments</p>
+                <div key={idx} className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:-translate-y-1 transition-transform duration-300">
+                  <h4 className="font-black text-slate-800 text-xl mb-4">{item.churchName}</h4>
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Total Raised</p>
+                    <p className="text-4xl font-black text-emerald-600 tracking-tight">KES {item.totalAmount.toLocaleString()}</p>
+                  </div>
+                  <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-sm text-slate-500 font-medium">Verified Records</span>
+                    <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-lg text-sm font-black">{item.count}</span>
+                  </div>
                 </div>
               ))}
               {(!summaryData?.churchwiseBreakdown || summaryData.churchwiseBreakdown.length === 0) && (
-                <div className="col-span-full bg-white p-8 text-center text-slate-400 rounded-2xl border border-dashed border-slate-300 text-sm">
-                  No verified churchwise records available yet. Sign in or contribute to start tracking!
+                <div className="col-span-full bg-white p-16 text-center text-slate-400 rounded-[2rem] border-2 border-dashed border-slate-200 text-lg font-medium">
+                  No verified churchwise records available yet. Sign in or contribute to start populating the board!
                 </div>
               )}
             </div>
           </div>
         )}
 
-        {/* --- TAB: CHAT WALL (COMING SOON) --- */}
+        {/* --- TAB: CHAT WALL --- */}
         {activeTab === 'chatwall' && (
-          <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 max-w-2xl mx-auto space-y-4 my-12 shadow-sm">
-            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl mx-auto flex items-center justify-center font-black text-2xl">
+          <div className="bg-white rounded-[2.5rem] p-16 text-center border border-slate-100 max-w-3xl mx-auto space-y-6 my-12 shadow-2xl">
+            <div className="w-24 h-24 bg-gradient-to-br from-emerald-100 to-teal-50 text-emerald-600 rounded-3xl mx-auto flex items-center justify-center font-black text-4xl shadow-inner">
               💬
             </div>
-            <h3 className="text-2xl font-black text-slate-900">Mwea West Chat Wall</h3>
-            <p className="text-sm text-slate-500 max-w-md mx-auto">
-              Our interactive youth discussion board and real-time mission chat wall is currently under construction.
+            <h3 className="text-4xl font-black text-slate-900 tracking-tight">Mwea West Chat Wall</h3>
+            <p className="text-lg text-slate-500 font-medium max-w-lg mx-auto leading-relaxed">
+              Our interactive youth discussion board and real-time mission chat wall is currently under construction to bring you the best experience.
             </p>
-            <span className="inline-block px-4 py-1.5 bg-slate-900 text-emerald-400 font-bold text-xs rounded-full uppercase tracking-wider">Coming Soon</span>
+            <div className="pt-4">
+              <span className="inline-block px-6 py-2.5 bg-slate-900 text-emerald-400 font-black text-sm rounded-xl uppercase tracking-widest shadow-lg">Coming Soon</span>
+            </div>
           </div>
         )}
 
         {/* --- TAB: CONTACT US --- */}
         {activeTab === 'contact' && (
-          <div className="max-w-xl mx-auto bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-            <div>
-              <h3 className="text-2xl font-black text-slate-900">Contact Mission Leadership</h3>
-              <p className="text-xs text-slate-500 mt-1">Send a direct message to the Treasurer and District Admin.</p>
+          <div className="max-w-2xl mx-auto bg-white p-10 md:p-14 rounded-[2.5rem] border border-slate-100 shadow-2xl space-y-8">
+            <div className="text-center space-y-2">
+              <h3 className="text-3xl font-black text-slate-900 tracking-tight">Contact Mission Leadership</h3>
+              <p className="text-slate-500 font-medium">Send a direct message to the Treasurer and District Admin for inquiries regarding contributions or general assistance.</p>
             </div>
 
-            <form onSubmit={handleContactSubmit} className="space-y-4">
+            <form onSubmit={handleContactSubmit} className="space-y-6">
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Mobile Number</label>
-                <input type="text" placeholder="0712345678" value={contactMobile} onChange={(e) => setContactMobile(e.target.value)} required className="w-full text-sm px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                <label className="block text-sm font-black text-slate-700 mb-2 uppercase tracking-wide">Mobile Number</label>
+                <input type="text" placeholder="e.g. 0712345678" value={contactMobile} onChange={(e) => setContactMobile(e.target.value)} required className="w-full text-base px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:bg-white shadow-sm transition-all" />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Message / Inquiry</label>
-                <textarea rows={4} placeholder="Type your message here..." value={contactMessage} onChange={(e) => setContactMessage(e.target.value)} required className="w-full text-sm px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                <label className="block text-sm font-black text-slate-700 mb-2 uppercase tracking-wide">Message / Inquiry</label>
+                <textarea rows={5} placeholder="Type your message here..." value={contactMessage} onChange={(e) => setContactMessage(e.target.value)} required className="w-full text-base px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:bg-white shadow-sm transition-all resize-none" />
               </div>
-              <button type="submit" className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl transition-all">
-                Send Message
+              <button type="submit" className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg rounded-2xl shadow-xl hover:shadow-emerald-600/30 transition-all transform hover:-translate-y-1">
+                Send Direct Message
               </button>
             </form>
           </div>
         )}
 
-        {/* --- TAB: DASHBOARD (TWO-PANEL UI) --- */}
+        {/* --- TAB: DASHBOARD (STRICT TWO-PANEL UI) --- */}
         {activeTab === 'dashboard' && currentUser && (
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Left Panel Sidebar */}
-            <div className="w-full md:w-64 flex-shrink-0 flex flex-col gap-2 bg-slate-900 rounded-3xl p-4 text-sm font-semibold text-slate-400 shadow-xl border border-slate-800 h-fit">
-              <div className="px-4 py-3 mb-2 border-b border-slate-700">
-                <span className="text-[10px] uppercase tracking-widest text-emerald-500 block mb-1">Portal</span>
-                <p className="text-white truncate">{currentUser.name}</p>
-                <p className="text-xs font-normal capitalize">{currentUser.role.replace('_', ' ')}</p>
+          <div className="flex flex-col lg:flex-row gap-8 items-start">
+            
+            {/* LEFT PANEL: Sidebar Navigation */}
+            <div className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-3 bg-slate-900 rounded-[2rem] p-6 text-slate-400 shadow-2xl border border-slate-800 lg:sticky lg:top-28">
+              <div className="px-2 py-4 mb-4 border-b border-slate-800">
+                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 block mb-2">Admin Portal</span>
+                <p className="text-white font-bold text-lg truncate">{currentUser.name}</p>
+                <p className="text-sm font-medium capitalize text-slate-400">{currentUser.role.replace('_', ' ')}</p>
               </div>
-              <button onClick={() => setAdminPanelTab('overview')} className={`text-left px-4 py-3 rounded-xl transition-all ${adminPanelTab === 'overview' ? 'bg-emerald-600 text-white shadow-md' : 'hover:bg-slate-800 hover:text-white'}`}>Overview & Actions</button>
               
-              {['admin', 'treasurer'].includes(currentUser.role) && (
-                <button onClick={() => setAdminPanelTab('payments')} className={`text-left px-4 py-3 rounded-xl transition-all ${adminPanelTab === 'payments' ? 'bg-emerald-600 text-white shadow-md' : 'hover:bg-slate-800 hover:text-white'}`}>PayHero Transactions</button>
-              )}
-              
-              {currentUser.role === 'admin' && (
-                <>
-                  <button onClick={() => setAdminPanelTab('users')} className={`text-left px-4 py-3 rounded-xl transition-all ${adminPanelTab === 'users' ? 'bg-emerald-600 text-white shadow-md' : 'hover:bg-slate-800 hover:text-white'}`}>User Management</button>
-                  <button onClick={() => setAdminPanelTab('config')} className={`text-left px-4 py-3 rounded-xl transition-all ${adminPanelTab === 'config' ? 'bg-emerald-600 text-white shadow-md' : 'hover:bg-slate-800 hover:text-white'}`}>Configurations</button>
-                </>
-              )}
-              <div className="mt-4 pt-4 border-t border-slate-700">
-                <button onClick={handleRequestPasswordReset} className="w-full text-left px-4 py-2 hover:bg-slate-800 rounded-xl text-xs text-slate-300">Request Password Reset</button>
+              <nav className="space-y-2 flex-1">
+                <button onClick={() => setAdminPanelTab('overview')} className={`w-full text-left px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${adminPanelTab === 'overview' ? 'bg-emerald-600 text-white shadow-lg' : 'hover:bg-slate-800 hover:text-white'}`}>Overview & Actions</button>
+                
+                {['admin', 'treasurer'].includes(currentUser.role) && (
+                  <button onClick={() => setAdminPanelTab('payments')} className={`w-full text-left px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${adminPanelTab === 'payments' ? 'bg-emerald-600 text-white shadow-lg' : 'hover:bg-slate-800 hover:text-white'}`}>PayHero Transactions</button>
+                )}
+                
+                {currentUser.role === 'admin' && (
+                  <>
+                    <button onClick={() => setAdminPanelTab('users')} className={`w-full text-left px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${adminPanelTab === 'users' ? 'bg-emerald-600 text-white shadow-lg' : 'hover:bg-slate-800 hover:text-white'}`}>User Management</button>
+                    <button onClick={() => setAdminPanelTab('config')} className={`w-full text-left px-5 py-3.5 rounded-xl text-sm font-bold transition-all ${adminPanelTab === 'config' ? 'bg-emerald-600 text-white shadow-lg' : 'hover:bg-slate-800 hover:text-white'}`}>Configurations</button>
+                  </>
+                )}
+              </nav>
+
+              <div className="mt-8 pt-6 border-t border-slate-800">
+                <button onClick={handleRequestPasswordReset} className="w-full text-center px-4 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold text-slate-300 transition-colors">Request Password Reset</button>
               </div>
             </div>
 
-            {/* Right Panel Main Content */}
-            <div className="flex-1 bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm min-h-[600px]">
+            {/* RIGHT PANEL: Main Content Area */}
+            <div className="flex-1 w-full bg-white rounded-[2rem] p-8 md:p-12 border border-slate-100 shadow-2xl min-h-[700px]">
               
               {/* ADMIN PANEL: OVERVIEW */}
               {adminPanelTab === 'overview' && (
-                <div className="space-y-8">
-                  <h3 className="text-2xl font-black text-slate-900 border-b border-slate-100 pb-4">General Overview</h3>
+                <div className="space-y-10 animate-fade-in">
+                  <div className="border-b border-slate-100 pb-6">
+                    <h3 className="text-3xl font-black text-slate-900 tracking-tight">General Overview</h3>
+                    <p className="text-slate-500 font-medium mt-2">Manage communications and member registrations.</p>
+                  </div>
                   
                   {/* Notice Board Creation */}
                   {['admin', 'pastor'].includes(currentUser.role) && (
-                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-4">
-                      <h4 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Broadcast Notice</h4>
-                      <form onSubmit={handlePostNotice} className="space-y-3">
-                        <input type="text" placeholder="Notice Title" value={noticeTitle} onChange={(e) => setNoticeTitle(e.target.value)} required className="w-full text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl" />
-                        <textarea rows={3} placeholder="Notice content..." value={noticeContent} onChange={(e) => setNoticeContent(e.target.value)} required className="w-full text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl" />
-                        <button type="submit" className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl shadow-sm">Broadcast Notice</button>
+                    <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-200 shadow-inner space-y-6">
+                      <div className="flex items-center space-x-3">
+                        <span className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 text-xl">📢</span>
+                        <h4 className="font-black text-slate-800 text-lg uppercase tracking-wide">Broadcast Notice</h4>
+                      </div>
+                      <form onSubmit={handlePostNotice} className="space-y-4">
+                        <input type="text" placeholder="Notice Title" value={noticeTitle} onChange={(e) => setNoticeTitle(e.target.value)} required className="w-full text-sm px-5 py-3.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 font-bold" />
+                        <textarea rows={4} placeholder="Type your full notice content here..." value={noticeContent} onChange={(e) => setNoticeContent(e.target.value)} required className="w-full text-sm px-5 py-3.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 resize-none font-medium" />
+                        <button type="submit" className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-black rounded-xl shadow-lg hover:shadow-indigo-600/30 transition-all transform hover:-translate-y-0.5">Publish Broadcast</button>
                       </form>
                     </div>
                   )}
 
                   {/* Church Leader Registration Portal */}
                   {['admin', 'church_leader'].includes(currentUser.role) && (
-                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-4">
-                      <h4 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Register Church Youth Member</h4>
-                      <form onSubmit={handleAddYouthMember} className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <select value={youthChurchId} onChange={(e) => setYouthChurchId(e.target.value)} required className="text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl">
+                    <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-200 shadow-inner space-y-6">
+                      <div className="flex items-center space-x-3">
+                        <span className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 text-xl">👤</span>
+                        <h4 className="font-black text-slate-800 text-lg uppercase tracking-wide">Register Youth Member</h4>
+                      </div>
+                      <form onSubmit={handleAddYouthMember} className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <select value={youthChurchId} onChange={(e) => setYouthChurchId(e.target.value)} required className="text-sm px-5 py-3.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-slate-900 cursor-pointer">
                           <option value="">Select Church</option>
                           {churches.map((c) => (
                             <option key={c._id} value={c._id}>{c.name}</option>
                           ))}
                         </select>
-                        <input type="text" placeholder="Youth Name" value={youthName} onChange={(e) => setYouthName(e.target.value)} required className="text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl" />
-                        <input type="text" placeholder="Phone Number" value={youthPhone} onChange={(e) => setYouthPhone(e.target.value)} required className="text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl" />
-                        <button type="submit" className="md:col-span-3 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-xl shadow-sm">Register Member</button>
+                        <input type="text" placeholder="Full Youth Name" value={youthName} onChange={(e) => setYouthName(e.target.value)} required className="text-sm px-5 py-3.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-slate-900" />
+                        <input type="text" placeholder="Phone Number" value={youthPhone} onChange={(e) => setYouthPhone(e.target.value)} required className="text-sm px-5 py-3.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-slate-900" />
+                        <button type="submit" className="md:col-span-3 py-4 bg-slate-900 hover:bg-slate-800 text-white text-sm font-black rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5">Register Member</button>
                       </form>
                     </div>
                   )}
 
-                  {/* Official Notices Disply */}
-                  <div className="space-y-4">
-                    <h4 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Published Notices</h4>
-                    <div className="space-y-3">
+                  {/* Official Notices Display */}
+                  <div className="space-y-6">
+                    <h4 className="font-black text-slate-900 text-xl tracking-tight">Published Notices Log</h4>
+                    <div className="grid grid-cols-1 gap-4">
                       {notices.map((n) => (
-                        <div key={n._id} className="p-5 bg-indigo-50/50 rounded-2xl border border-indigo-100 space-y-1.5">
-                          <h5 className="font-bold text-slate-900 text-sm">{n.title}</h5>
-                          <p className="text-sm text-slate-600 leading-relaxed">{n.content}</p>
-                          <p className="text-xs text-indigo-600 font-bold mt-2">Posted by: {n.author?.name || 'Leadership'}</p>
+                        <div key={n._id} className="p-6 bg-white rounded-[1.5rem] border border-indigo-100 shadow-sm hover:shadow-md transition-shadow space-y-3 relative overflow-hidden">
+                          <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+                          <h5 className="font-black text-slate-900 text-lg">{n.title}</h5>
+                          <p className="text-sm text-slate-600 font-medium leading-relaxed">{n.content}</p>
+                          <div className="flex items-center justify-between pt-2">
+                            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">By: {n.author?.name || 'Leadership'}</p>
+                            <span className="text-[10px] text-indigo-400 font-bold">{new Date(n.createdAt).toLocaleDateString()}</span>
+                          </div>
                         </div>
                       ))}
-                      {notices.length === 0 && <p className="text-sm text-slate-400">No notices published yet.</p>}
+                      {notices.length === 0 && (
+                        <div className="p-10 text-center border-2 border-dashed border-slate-200 rounded-[1.5rem]">
+                          <p className="text-slate-400 font-medium">No official notices have been published yet.</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1069,67 +1182,75 @@ export default function TwendeMissionApp() {
 
               {/* ADMIN PANEL: PAYMENTS (PayHero Integration) */}
               {adminPanelTab === 'payments' && ['admin', 'treasurer'].includes(currentUser.role) && (
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+                <div className="space-y-8 animate-fade-in">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-6 gap-4">
                     <div>
-                      <h3 className="text-2xl font-black text-slate-900">PayHero Transactions</h3>
-                      <p className="text-xs text-slate-500">Live payment verification logs (STK, Paybill, Cart)</p>
+                      <h3 className="text-3xl font-black text-slate-900 tracking-tight">PayHero Transactions</h3>
+                      <p className="text-slate-500 font-medium mt-2">Live automated payment verification logs from M-Pesa.</p>
                     </div>
-                    <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-[10px] font-black rounded-full uppercase tracking-wider">Sync Active</span>
+                    <span className="px-4 py-1.5 bg-emerald-100 text-emerald-800 text-xs font-black rounded-full uppercase tracking-widest border border-emerald-200 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sync Active
+                    </span>
                   </div>
 
-                  <div className="overflow-x-auto rounded-2xl border border-slate-200">
-                    <table className="w-full text-left text-sm text-slate-600 whitespace-nowrap">
-                      <thead className="bg-slate-50 text-slate-800 font-bold uppercase text-xs tracking-wider">
-                        <tr>
-                          <th className="p-4 border-b border-slate-200">User Name</th>
-                          <th className="p-4 border-b border-slate-200">Mobile No.</th>
-                          <th className="p-4 border-b border-slate-200">Church</th>
-                          <th className="p-4 border-b border-slate-200">Amount</th>
-                          <th className="p-4 border-b border-slate-200">Method</th>
-                          <th className="p-4 border-b border-slate-200">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {paymentRecords.map((p) => (
-                          <tr key={p._id} className="hover:bg-slate-50 transition-colors">
-                            <td className="p-4 font-bold text-slate-900">{p.userName}</td>
-                            <td className="p-4 font-medium text-slate-500">{p.mobile}</td>
-                            <td className="p-4 font-medium text-slate-700">{p.churchName}</td>
-                            <td className="p-4 font-black text-emerald-600">KES {p.amount.toLocaleString()}</td>
-                            <td className="p-4">
-                              <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded uppercase">{p.method}</span>
-                            </td>
-                            <td className="p-4">
-                              {p.status === 'Success' && <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase">Success</span>}
-                              {p.status === 'Pending' && <span className="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full uppercase">Pending</span>}
-                              {p.status === 'Failed' && <span className="px-2 py-1 bg-rose-100 text-rose-700 text-[10px] font-bold rounded-full uppercase">Failed</span>}
-                            </td>
-                          </tr>
-                        ))}
-                        {paymentRecords.length === 0 && (
+                  <div className="overflow-hidden rounded-[1.5rem] border border-slate-200 shadow-sm">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-sm whitespace-nowrap">
+                        <thead className="bg-slate-50 text-slate-500 font-black uppercase text-[10px] tracking-widest">
                           <tr>
-                            <td colSpan={6} className="p-8 text-center text-slate-400">No payment records found.</td>
+                            <th className="p-5 border-b border-slate-200">Contributor</th>
+                            <th className="p-5 border-b border-slate-200">Mobile No.</th>
+                            <th className="p-5 border-b border-slate-200">Church Location</th>
+                            <th className="p-5 border-b border-slate-200">Amount</th>
+                            <th className="p-5 border-b border-slate-200">Channel</th>
+                            <th className="p-5 border-b border-slate-200">Status</th>
                           </tr>
-                        )}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 bg-white">
+                          {paymentRecords.map((p) => (
+                            <tr key={p._id} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="p-5 font-bold text-slate-900">{p.userName}</td>
+                              <td className="p-5 font-semibold text-slate-500">{p.mobile}</td>
+                              <td className="p-5 font-semibold text-slate-600">{p.churchName}</td>
+                              <td className="p-5 font-black text-emerald-600 text-base">KES {p.amount.toLocaleString()}</td>
+                              <td className="p-5">
+                                <span className="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-black rounded-lg uppercase tracking-wider">{p.method}</span>
+                              </td>
+                              <td className="p-5">
+                                {p.status === 'Success' && <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-lg uppercase tracking-wider">Success</span>}
+                                {p.status === 'Pending' && <span className="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-black rounded-lg uppercase tracking-wider">Pending</span>}
+                                {p.status === 'Failed' && <span className="px-3 py-1 bg-rose-100 text-rose-700 text-[10px] font-black rounded-lg uppercase tracking-wider">Failed</span>}
+                              </td>
+                            </tr>
+                          ))}
+                          {paymentRecords.length === 0 && (
+                            <tr>
+                              <td colSpan={6} className="p-10 text-center text-slate-400 font-medium">No payment records detected in the system yet.</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
 
                   {/* Treasurer Contacts */}
-                  <div className="pt-6 border-t border-slate-100">
-                    <h4 className="font-bold text-slate-800 text-sm uppercase tracking-wide mb-4">Treasurer Support Messages</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="pt-8 border-t border-slate-100">
+                    <h4 className="font-black text-slate-900 text-xl tracking-tight mb-6">Treasurer Support Inbox</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       {contacts.map((msg) => (
-                        <div key={msg._id} className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-sm space-y-2">
-                          <div className="flex justify-between font-bold text-slate-800 border-b border-slate-200 pb-2">
-                            <span>{msg.mobile}</span>
-                            <span className="text-slate-400 text-xs font-medium">{new Date(msg.createdAt).toLocaleDateString()}</span>
+                        <div key={msg._id} className="p-6 bg-slate-50 rounded-[1.5rem] border border-slate-200 space-y-3 hover:shadow-md transition-shadow">
+                          <div className="flex justify-between items-center border-b border-slate-200 pb-3">
+                            <span className="font-black text-slate-800 bg-slate-200 px-3 py-1 rounded-md text-sm">{msg.mobile}</span>
+                            <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">{new Date(msg.createdAt).toLocaleDateString()}</span>
                           </div>
-                          <p className="text-slate-600">{msg.message}</p>
+                          <p className="text-slate-600 font-medium leading-relaxed">{msg.message}</p>
                         </div>
                       ))}
-                      {contacts.length === 0 && <p className="text-sm text-slate-400">No support inquiries received.</p>}
+                      {contacts.length === 0 && (
+                        <div className="col-span-2 p-10 text-center border-2 border-dashed border-slate-200 rounded-[1.5rem]">
+                          <p className="text-slate-400 font-medium">No active support inquiries received.</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1137,97 +1258,105 @@ export default function TwendeMissionApp() {
 
               {/* ADMIN PANEL: USERS */}
               {adminPanelTab === 'users' && currentUser.role === 'admin' && (
-                <div className="space-y-6">
-                  <h3 className="text-2xl font-black text-slate-900 border-b border-slate-100 pb-4">User & Account Management</h3>
+                <div className="space-y-10 animate-fade-in">
+                  <div className="border-b border-slate-100 pb-6">
+                    <h3 className="text-3xl font-black text-slate-900 tracking-tight">System Access & Roles</h3>
+                    <p className="text-slate-500 font-medium mt-2">Manage structural leadership accounts securely.</p>
+                  </div>
 
-                  <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-4">
-                    <h4 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Create Church Leader Account</h4>
-                    <form onSubmit={handleCreateLeader} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                      <input type="text" placeholder="Full Name" value={leaderName} onChange={(e) => setLeaderName(e.target.value)} required className="text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl" />
-                      <input type="email" placeholder="Email" value={leaderEmail} onChange={(e) => setLeaderEmail(e.target.value)} required className="text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl" />
-                      <input type="password" placeholder="Password" value={leaderPassword} onChange={(e) => setLeaderPassword(e.target.value)} required className="text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl" />
-                      <input type="text" placeholder="Phone" value={leaderPhone} onChange={(e) => setLeaderPhone(e.target.value)} required className="text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl" />
-                      <select value={leaderChurchId} onChange={(e) => setLeaderChurchId(e.target.value)} required className="text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl">
-                        <option value="">Select Church</option>
+                  <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-200 shadow-inner space-y-6">
+                    <h4 className="font-black text-slate-800 text-lg uppercase tracking-wide">Provision Church Leader</h4>
+                    <form onSubmit={handleCreateLeader} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                      <input type="text" placeholder="Full Name" value={leaderName} onChange={(e) => setLeaderName(e.target.value)} required className="text-sm px-5 py-3.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-slate-900" />
+                      <input type="email" placeholder="Official Email" value={leaderEmail} onChange={(e) => setLeaderEmail(e.target.value)} required className="text-sm px-5 py-3.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-slate-900" />
+                      <input type="text" placeholder="Phone Number" value={leaderPhone} onChange={(e) => setLeaderPhone(e.target.value)} required className="text-sm px-5 py-3.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-slate-900" />
+                      <select value={leaderChurchId} onChange={(e) => setLeaderChurchId(e.target.value)} required className="text-sm px-5 py-3.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-slate-900 cursor-pointer lg:col-span-1">
+                        <option value="">Assign to Church...</option>
                         {churches.map((c) => (
                           <option key={c._id} value={c._id}>{c.name}</option>
                         ))}
                       </select>
-                      <button type="submit" className="lg:col-span-5 py-3 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-xl shadow-sm mt-2">Create Leader</button>
+                      <input type="password" placeholder="Secure Password" value={leaderPassword} onChange={(e) => setLeaderPassword(e.target.value)} required className="text-sm px-5 py-3.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-slate-900 lg:col-span-2" />
+                      
+                      <button type="submit" className="lg:col-span-3 py-4 bg-slate-900 hover:bg-slate-800 text-white text-sm font-black rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 mt-2">Provision Leader Account</button>
                     </form>
                   </div>
 
-                  <div className="overflow-x-auto rounded-2xl border border-slate-200 mt-6">
-                    <table className="w-full text-left text-sm text-slate-600 whitespace-nowrap">
-                      <thead className="bg-slate-50 text-slate-800 font-bold uppercase text-xs tracking-wider">
-                        <tr>
-                          <th className="p-4 border-b border-slate-200">User</th>
-                          <th className="p-4 border-b border-slate-200">Email</th>
-                          <th className="p-4 border-b border-slate-200">Role</th>
-                          <th className="p-4 border-b border-slate-200">Reset Auth</th>
-                          <th className="p-4 border-b border-slate-200">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {userList.map((u) => (
-                          <tr key={u._id || u.id} className="hover:bg-slate-50 transition-colors">
-                            <td className="p-4 font-bold text-slate-900">{u.name}</td>
-                            <td className="p-4 text-slate-500">{u.email}</td>
-                            <td className="p-4">
-                              <span className="px-2 py-1 bg-indigo-50 text-indigo-700 text-[10px] font-bold rounded uppercase">{u.role.replace('_', ' ')}</span>
-                            </td>
-                            <td className="p-4">
-                              {u.resetRequested ? (
-                                <span className="text-rose-600 font-black text-xs">REQUESTED</span>
-                              ) : (
-                                <span className="text-slate-400 text-xs">Clear</span>
-                              )}
-                            </td>
-                            <td className="p-4">
-                              <button onClick={() => handleAdminResetPassword(u._id || u.id)} className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-900 rounded-lg font-bold text-xs shadow-sm">Reset Pass</button>
-                            </td>
+                  <div className="overflow-hidden rounded-[1.5rem] border border-slate-200 shadow-sm mt-8">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-sm whitespace-nowrap">
+                        <thead className="bg-slate-50 text-slate-500 font-black uppercase text-[10px] tracking-widest">
+                          <tr>
+                            <th className="p-5 border-b border-slate-200">User Identity</th>
+                            <th className="p-5 border-b border-slate-200">Email Contact</th>
+                            <th className="p-5 border-b border-slate-200">Assigned Role</th>
+                            <th className="p-5 border-b border-slate-200">Security Alert</th>
+                            <th className="p-5 border-b border-slate-200">Admin Action</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 bg-white">
+                          {userList.map((u) => (
+                            <tr key={u._id || u.id} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="p-5 font-bold text-slate-900">{u.name}</td>
+                              <td className="p-5 font-medium text-slate-500">{u.email}</td>
+                              <td className="p-5">
+                                <span className="px-3 py-1 bg-indigo-50 text-indigo-700 text-[10px] font-black rounded-lg uppercase tracking-wider">{u.role.replace('_', ' ')}</span>
+                              </td>
+                              <td className="p-5">
+                                {u.resetRequested ? (
+                                  <span className="text-rose-600 font-black text-[10px] uppercase tracking-wider bg-rose-50 px-2 py-1 rounded">Requested</span>
+                                ) : (
+                                  <span className="text-slate-400 text-xs font-medium">Clear</span>
+                                )}
+                              </td>
+                              <td className="p-5">
+                                <button onClick={() => handleAdminResetPassword(u._id || u.id)} className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-black text-[10px] uppercase tracking-wider shadow-md transition-colors">Force Reset</button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* ADMIN PANEL: CONFIG */}
               {adminPanelTab === 'config' && currentUser.role === 'admin' && (
-                <div className="space-y-6">
-                  <h3 className="text-2xl font-black text-slate-900 border-b border-slate-100 pb-4">District Configurations</h3>
+                <div className="space-y-10 animate-fade-in">
+                  <div className="border-b border-slate-100 pb-6">
+                    <h3 className="text-3xl font-black text-slate-900 tracking-tight">District Configurations</h3>
+                    <p className="text-slate-500 font-medium mt-2">Adjust core financial targets and infrastructure.</p>
+                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Create Church */}
-                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-4">
-                      <h4 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Add District Church</h4>
-                      <form onSubmit={handleCreateChurch} className="flex flex-col gap-3">
-                        <input type="text" placeholder="New Church Name" value={newChurchName} onChange={(e) => setNewChurchName(e.target.value)} required className="w-full text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500" />
-                        <button type="submit" className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-xl shadow-sm">Register Church</button>
+                    <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-200 shadow-inner space-y-6">
+                      <h4 className="font-black text-slate-800 text-lg uppercase tracking-wide">Register New Church</h4>
+                      <form onSubmit={handleCreateChurch} className="flex flex-col gap-4">
+                        <input type="text" placeholder="Official Church Name" value={newChurchName} onChange={(e) => setNewChurchName(e.target.value)} required className="w-full text-sm px-5 py-3.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-slate-900" />
+                        <button type="submit" className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-black rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5">Add to Network</button>
                       </form>
                     </div>
 
                     {/* Target & Price Config */}
-                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-4">
-                      <h4 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Set Mission Target</h4>
-                      <form onSubmit={handleUpdateTargetConfig} className="flex flex-col gap-3">
+                    <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-200 shadow-inner space-y-6">
+                      <h4 className="font-black text-slate-800 text-lg uppercase tracking-wide">Global Financial Goal</h4>
+                      <form onSubmit={handleUpdateTargetConfig} className="flex flex-col gap-4">
                         <div>
-                          <label className="block text-xs font-semibold text-slate-500 mb-1">Monetary Target (KES)</label>
-                          <input type="number" placeholder="500000" value={newMonetaryTarget} onChange={(e) => setNewMonetaryTarget(Number(e.target.value))} required className="w-full text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl" />
+                          <label className="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wide">Total Monetary Target (KES)</label>
+                          <input type="number" placeholder="500000" value={newMonetaryTarget} onChange={(e) => setNewMonetaryTarget(Number(e.target.value))} required className="w-full text-sm px-5 py-3.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900" />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-slate-500 mb-1">Rice Cash Equivalent (Per Kg)</label>
-                          <input type="number" placeholder="150" value={ricePricePerUnit} onChange={(e) => setRicePricePerUnit(Number(e.target.value))} required className="w-full text-sm px-4 py-2.5 bg-white border border-slate-300 rounded-xl" />
+                          <label className="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wide">Rice Index Value (Per Kg)</label>
+                          <input type="number" placeholder="150" value={ricePricePerUnit} onChange={(e) => setRicePricePerUnit(Number(e.target.value))} required className="w-full text-sm px-5 py-3.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900" />
                         </div>
-                        <button type="submit" className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl shadow-sm mt-1">Save Configuration</button>
+                        <button type="submit" className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-black rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 mt-2">Deploy Configuration</button>
                       </form>
                     </div>
                   </div>
                 </div>
               )}
-
             </div>
           </div>
         )}
@@ -1235,64 +1364,68 @@ export default function TwendeMissionApp() {
 
       {/* --- AUTHENTICATION MODAL --- */}
       {showAuthModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl border border-slate-100 space-y-6">
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2rem] max-w-md w-full p-10 shadow-2xl space-y-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-full -z-10"></div>
+            
             <div className="flex justify-between items-center">
-              <h3 className="text-xl font-black text-slate-900">{authMode === 'login' ? 'Sign In' : 'Register Account'}</h3>
-              <button onClick={() => setShowAuthModal(false)} className="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+              <h3 className="text-3xl font-black text-slate-900 tracking-tight">{authMode === 'login' ? 'Welcome Back' : 'Join Mission'}</h3>
+              <button onClick={() => setShowAuthModal(false)} className="w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full flex items-center justify-center font-black transition-colors">✕</button>
             </div>
 
             {authMode === 'login' ? (
-              <form onSubmit={handleLogin} className="space-y-4">
+              <form onSubmit={handleLogin} className="space-y-5">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Email Address</label>
-                  <input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required className="w-full text-sm px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl" />
+                  <label className="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wide">Email Address</label>
+                  <input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required className="w-full text-sm px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white shadow-sm transition-all" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Password</label>
-                  <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required className="w-full text-sm px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl" />
+                  <label className="block text-xs font-black text-slate-700 mb-1.5 uppercase tracking-wide">Password</label>
+                  <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required className="w-full text-sm px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white shadow-sm transition-all" />
                 </div>
-                <button type="submit" disabled={loading} className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl">
+                <button type="submit" disabled={loading} className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm rounded-xl shadow-lg hover:shadow-emerald-600/30 transition-all transform hover:-translate-y-0.5 mt-2">
                   {loading ? 'Authenticating...' : 'Sign In'}
                 </button>
-                <p className="text-xs text-center text-slate-500">
+                <p className="text-sm text-center text-slate-500 font-medium">
                   Don't have an account?{' '}
-                  <button type="button" onClick={() => setAuthMode('register')} className="text-emerald-600 font-bold underline">Register</button>
+                  <button type="button" onClick={() => setAuthMode('register')} className="text-emerald-600 font-black hover:underline">Register Here</button>
                 </p>
               </form>
             ) : (
-              <form onSubmit={handleRegister} className="space-y-3">
+              <form onSubmit={handleRegister} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Full Name</label>
-                  <input type="text" value={regName} onChange={(e) => setRegName(e.target.value)} required className="w-full text-sm px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl" />
+                  <label className="block text-[10px] font-black text-slate-700 mb-1 uppercase tracking-wider">Full Name</label>
+                  <input type="text" value={regName} onChange={(e) => setRegName(e.target.value)} required className="w-full text-sm px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Email</label>
-                  <input type="email" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} required className="w-full text-sm px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl" />
+                  <label className="block text-[10px] font-black text-slate-700 mb-1 uppercase tracking-wider">Email</label>
+                  <input type="email" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} required className="w-full text-sm px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-700 mb-1 uppercase tracking-wider">Phone</label>
+                    <input type="text" value={regPhone} onChange={(e) => setRegPhone(e.target.value)} required className="w-full text-sm px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-700 mb-1 uppercase tracking-wider">Local Church</label>
+                    <select value={regChurchId} onChange={(e) => setRegChurchId(e.target.value)} className="w-full text-sm px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900">
+                      <option value="">Select...</option>
+                      {churches.map((c) => (
+                        <option key={c._id} value={c._id}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Phone</label>
-                  <input type="text" value={regPhone} onChange={(e) => setRegPhone(e.target.value)} required className="w-full text-sm px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl" />
+                  <label className="block text-[10px] font-black text-slate-700 mb-1 uppercase tracking-wider">Password</label>
+                  <input type="password" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} required className="w-full text-sm px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900" />
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Local Church</label>
-                  <select value={regChurchId} onChange={(e) => setRegChurchId(e.target.value)} className="w-full text-sm px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl">
-                    <option value="">Select local church...</option>
-                    {churches.map((c) => (
-                      <option key={c._id} value={c._id}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Password</label>
-                  <input type="password" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} required className="w-full text-sm px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl" />
-                </div>
-                <button type="submit" disabled={loading} className="w-full py-3 bg-slate-900 text-white font-bold text-sm rounded-xl">
-                  {loading ? 'Creating...' : 'Register'}
+                <button type="submit" disabled={loading} className="w-full py-4 bg-slate-900 text-white font-black text-sm rounded-xl shadow-lg hover:bg-slate-800 transition-all transform hover:-translate-y-0.5 mt-2">
+                  {loading ? 'Creating...' : 'Create Account'}
                 </button>
-                <p className="text-xs text-center text-slate-500">
+                <p className="text-sm text-center text-slate-500 font-medium">
                   Already registered?{' '}
-                  <button type="button" onClick={() => setAuthMode('login')} className="text-emerald-600 font-bold underline">Sign In</button>
+                  <button type="button" onClick={() => setAuthMode('login')} className="text-emerald-600 font-black hover:underline">Sign In</button>
                 </p>
               </form>
             )}
@@ -1302,55 +1435,58 @@ export default function TwendeMissionApp() {
 
       {/* --- RECEIPT MODAL --- */}
       {activeReceipt && (
-        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4">
-            <div className="text-center border-b border-slate-100 pb-4">
-              <h3 className="text-lg font-black text-slate-900">{activeReceipt.receiptTitle}</h3>
-              <p className="text-xs text-emerald-600 font-bold mt-0.5">Receipt #: {activeReceipt.receiptNumber}</p>
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2rem] max-w-sm w-full p-8 shadow-2xl border border-slate-200 space-y-6">
+            <div className="text-center border-b border-slate-100 pb-6 relative">
+              <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">🧾</div>
+              <h3 className="text-xl font-black text-slate-900">{activeReceipt.receiptTitle}</h3>
+              <p className="text-xs text-emerald-600 font-black mt-1 uppercase tracking-widest">No. {activeReceipt.receiptNumber}</p>
             </div>
 
-            <div className="space-y-2 text-xs text-slate-600">
-              <div className="flex justify-between py-1 border-b border-slate-50">
-                <span className="text-slate-400">Date:</span>
-                <span className="font-semibold text-slate-800">{new Date(activeReceipt.date).toLocaleString()}</span>
+            <div className="space-y-4 text-sm text-slate-600 font-medium">
+              <div className="flex justify-between border-b border-slate-50 pb-2">
+                <span className="text-slate-400">Date</span>
+                <span className="font-bold text-slate-800 text-right">{new Date(activeReceipt.date).toLocaleString()}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-slate-50">
-                <span className="text-slate-400">Contributor:</span>
-                <span className="font-semibold text-slate-800">{activeReceipt.contributorName}</span>
+              <div className="flex justify-between border-b border-slate-50 pb-2">
+                <span className="text-slate-400">Contributor</span>
+                <span className="font-bold text-slate-800 text-right">{activeReceipt.contributorName}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-slate-50">
-                <span className="text-slate-400">Church:</span>
-                <span className="font-semibold text-slate-800">{activeReceipt.church}</span>
+              <div className="flex justify-between border-b border-slate-50 pb-2">
+                <span className="text-slate-400">Church</span>
+                <span className="font-bold text-slate-800 text-right">{activeReceipt.church}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-slate-50">
-                <span className="text-slate-400">Item / Type:</span>
-                <span className="font-semibold text-slate-800">{activeReceipt.itemName} ({activeReceipt.type})</span>
+              <div className="flex justify-between border-b border-slate-50 pb-2">
+                <span className="text-slate-400">Item Details</span>
+                <span className="font-bold text-slate-800 text-right">{activeReceipt.itemName} ({activeReceipt.type})</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-slate-50">
-                <span className="text-slate-400">Quantity / Amount:</span>
-                <span className="font-black text-emerald-600 text-sm">
+              <div className="flex justify-between bg-slate-50 p-3 rounded-xl mt-2">
+                <span className="text-slate-500 font-bold">Total Settled</span>
+                <span className="font-black text-emerald-600 text-lg">
                   {activeReceipt.type === 'cash' ? `KES ${activeReceipt.amountPaid.toLocaleString()}` : `${activeReceipt.quantity} Units`}
                 </span>
               </div>
-              <div className="flex justify-between py-1">
-                <span className="text-slate-400">Status:</span>
-                <span className="font-bold text-emerald-600 uppercase">{activeReceipt.status}</span>
-              </div>
             </div>
 
-            <div className="pt-2 flex gap-2">
-              <button onClick={() => window.print()} className="flex-1 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl">Print Receipt</button>
-              <button onClick={() => setActiveReceipt(null)} className="py-2 px-4 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl">Close</button>
+            <div className="pt-2 flex gap-3">
+              <button onClick={() => window.print()} className="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg transition-all">Print</button>
+              <button onClick={() => setActiveReceipt(null)} className="py-3 px-6 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-black uppercase tracking-wider rounded-xl transition-all">Close</button>
             </div>
           </div>
         </div>
       )}
 
       {/* FOOTER */}
-      <footer className="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 text-center space-y-2">
-          <p>© 2026 Mwea West District Youth Twende Mission Channel. All rights reserved.</p>
-          <p className="text-slate-500">PayHero API Channel ID: 12252 • Verified M-Pesa Callback System</p>
+      <footer className="bg-slate-950 text-slate-500 text-sm py-12 border-t border-slate-900 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center space-x-2">
+             <div className="w-8 h-8 rounded-lg bg-emerald-900 text-emerald-500 flex items-center justify-center font-black text-lg">M</div>
+             <p className="font-bold text-slate-400">© 2026 Mwea West District Youth</p>
+          </div>
+          <div className="text-center md:text-right font-medium text-xs">
+            <p>PayHero Auth Channel: <strong className="text-slate-300">12252</strong></p>
+            <p className="text-slate-600 mt-1">Encrypted M-Pesa Callback Verification</p>
+          </div>
         </div>
       </footer>
     </div>
