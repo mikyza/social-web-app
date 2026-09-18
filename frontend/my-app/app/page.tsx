@@ -485,17 +485,17 @@ export default function TwendeMissionApp() {
   const [paymentMethodTab, setPaymentMethodTab] = useState<'stk' | 'paybill' | 'cart'>('stk');
   const [studySubTab, setStudySubTab] = useState<'all' | 'beliefs' | 'weekly' | 'my_notes'>('all');
 
-  // --- MODALS ---
+ // --- MODALS ---
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const [activeReceipt, setActiveReceipt] = useState<Receipt null |>(null);
+  const [activeReceipt, setActiveReceipt] = useState<Receipt | null>(null);
   const [searchReceiptNo, setSearchReceiptNo] = useState('');
-  const [selectedTopicForView, setSelectedTopicForView] = useState<StudyTopic null |>(null);
+  const [selectedTopicForView, setSelectedTopicForView] = useState<StudyTopic | null>(null);
 
   // --- DATA STATES ---
-  const [targetData, setTargetData] = useState<Target null |>(null);
+  const [targetData, setTargetData] = useState<Target | null>(null);
   const [churches, setChurches] = useState<Church[]>([]);
-  const [summaryData, setSummaryData] = useState<ContributionSummary null |>(null);
+  const [summaryData, setSummaryData] = useState<ContributionSummary | null>(null);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [contacts, setContacts] = useState<ContactMessage[]>([]);
   const [userList, setUserList] = useState<User[]>([]);
