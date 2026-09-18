@@ -471,7 +471,7 @@ export const parsePastedDocument = (rawText: string): IngestedTopicDraft[] => {
 export default function TwendeMissionApp() {
   // --- AUTH & USER STATE ---
   const [token, setToken] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<User null |>(null);
+ const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   // --- NAVIGATION TABS ---
   const [activeTab, setActiveTab] = useState<
