@@ -7,7 +7,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 // CONFIGURATION & API BASE URL
 // ============================================================================
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || '[https://social-web-app-c1gd.onrender.com](https://social-web-app-c1gd.onrender.com)';
+  process.env.NEXT_PUBLIC_API_URL || 'https://social-web-app-c1gd.onrender.com';
 
 // ============================================================================
 // TYPES & INTERFACES
