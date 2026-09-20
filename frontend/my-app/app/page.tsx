@@ -379,7 +379,7 @@ const INITIAL_CHAT_POSTS: ChatPost[] = [
 // ============================================================================
 // PARSER ENGINE FOR ALL-IN-ONE DOCUMENT INGESTION
 // ============================================================================
-export const parsePastedDocument = (rawText: string): IngestedTopicDraft[] => {
+const parsePastedDocument = (rawText: string): IngestedTopicDraft[] => {
   if (!rawText || !rawText.trim()) return [];
 
   const drafts: IngestedTopicDraft[] = [];
